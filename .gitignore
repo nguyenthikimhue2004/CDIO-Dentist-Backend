@@ -1,0 +1,9 @@
+# includes files or folder that are not pushed to the repository
+*.log
+*.tmp
+node_modules/
+dist/
+.env
+.DS_Store
+.idea/
+.vscode/
