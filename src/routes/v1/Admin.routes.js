@@ -32,7 +32,7 @@ router.post("/refresh-token", refreshToken);
 // Consultant management
 
 // add consultant
-router.post("/consultants", authenticateAdmin, addConsultant);
+router.post("/consultant", authenticateAdmin, addConsultant);
 // get consultant by id
 router.get("/consultant/:id", authenticateAdmin, getConsultantById);
 // get all consultants
@@ -45,7 +45,7 @@ router.delete("/consultants/:id", authenticateAdmin, deleteConsultant);
 // Doctor management
 
 // add doctor
-router.post("/doctors", authenticateAdmin, addDoctor);
+router.post("/doctor", authenticateAdmin, addDoctor);
 // get doctor by id
 router.get("/doctor/:id", authenticateAdmin, getDoctorById);
 // get all doctors
