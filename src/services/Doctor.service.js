@@ -1,5 +1,13 @@
 const { pool } = require("../config/db.config");
 
+// check if doctor exists
+exports.checkDoctorExists = async (doctorID) => {
+  const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
+    doctorID,
+  ]);
+  return doctor.length > 0;
+};
+
 // add doctor
 exports.addDoctor = async (adminID, dortorData) => {
   const { name, email, phone, location, dob, experience, male } = dortorData;
@@ -36,7 +44,13 @@ exports.getDoctorById = async (id) => {
 };
 
 // get all doctors
-exports.getAllDoctors = async (adminID) => {
+exports.getAllDoctors = async () => {
+  const [doctors] = await pool.execute("SELECT * FROM Doctors");
+  return doctors;
+};
+
+// get all doctors by admin id
+exports.getAllDoctorsByAdminId = async (adminID) => {
   const [doctors] = await pool.execute(
     "SELECT * FROM Doctors WHERE admin_id = ?",
     [adminID]
