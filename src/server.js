@@ -32,7 +32,7 @@ app.listen(PORT, () => {
 
 // Setup project Node.js và cấu trúc thư mục
 // Cấu hình kết nối MySQL
-// Tạo các model từ schema database
+// Tạo các model từ schema database 
 // Xây dựng các API endpoints
 // Xử lý authentication/authorization
 // Logic xử lý business
