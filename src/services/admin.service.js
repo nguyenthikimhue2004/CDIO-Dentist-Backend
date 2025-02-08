@@ -1,5 +1,5 @@
 const { pool } = require("../config/db.config");
-
+const bcrypt = require("bcrypt");
 // check if admin exists
 exports.checkEmailExists = async (email) => {
   const [admin] = await pool.execute("SELECT * FROM Admin WHERE email = ?", [
