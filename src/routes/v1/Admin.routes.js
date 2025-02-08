@@ -21,38 +21,38 @@ const {
 } = require("../../controllers/Admin.controller");
 
 // register admin
-router.post("/admin/register", registerAdmin);
+router.post("/register", registerAdmin);
 
 // Admin authentication
-router.post("/admin/login", loginAdmin);
+router.post("/login", loginAdmin);
 
 // refresh token
-router.post("/admin/refresh-token", refreshToken);
+router.post("/refresh-token", refreshToken);
 
 // Consultant management
 
 // add consultant
-router.post("/admin/consultants", authenticateAdmin, addConsultant);
+router.post("/consultants", authenticateAdmin, addConsultant);
 // get consultant by id
-router.get("/admin/consultant/:id", authenticateAdmin, getConsultantById);
+router.get("/consultant/:id", authenticateAdmin, getConsultantById);
 // get all consultants
-router.get("/admin/consultants", authenticateAdmin, getConsultants);
+router.get("/consultants", authenticateAdmin, getConsultants);
 // update consultant
-router.put("/admin/consultants/:id", authenticateAdmin, updateConsultant);
+router.put("/consultants/:id", authenticateAdmin, updateConsultant);
 // delete consultant
-router.delete("/admin/consultants/:id", authenticateAdmin, deleteConsultant);
+router.delete("/consultants/:id", authenticateAdmin, deleteConsultant);
 
 // Doctor management
 
 // add doctor
-router.post("/admin/doctors", authenticateAdmin, addDoctor);
+router.post("/doctors", authenticateAdmin, addDoctor);
 // get doctor by id
-router.get("/admin/doctor/:id", authenticateAdmin, getDoctorById);
+router.get("/doctor/:id", authenticateAdmin, getDoctorById);
 // get all doctors
-router.get("/admin/doctors", authenticateAdmin, getAllDoctors);
+router.get("/doctors", authenticateAdmin, getAllDoctors);
 // update doctor
-router.put("/admin/doctors/:id", authenticateAdmin, updateDoctor);
+router.put("/doctors/:id", authenticateAdmin, updateDoctor);
 // delete doctor
-router.delete("/admin/doctors/:id", authenticateAdmin, deleteDoctor);
+router.delete("/doctors/:id", authenticateAdmin, deleteDoctor);
 
 module.exports = router;
