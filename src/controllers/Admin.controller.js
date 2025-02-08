@@ -1,4 +1,8 @@
-const { getAdminByEmail, registerAdmin } = require("../services/Admin.service");
+const {
+  getAdminByEmail,
+  registerAdmin,
+  checkEmailExists,
+} = require("../services/Admin.service");
 const { generateToken } = require("../utils/jwt");
 const bcrypt = require("bcrypt");
 const {
@@ -13,7 +17,7 @@ const {
   getDoctorById,
   updateDoctor,
   deleteDoctor,
-  getAllDoctors,
+  getAllDoctorsByAdminId,
 } = require("../services/Doctor.service");
 
 exports.registerAdmin = async (req, res) => {
@@ -165,9 +169,9 @@ exports.getDoctorById = async (req, res) => {
 };
 
 // get all Doctors
-exports.getAllDoctors = async (req, res) => {
+exports.getAllDoctorsByAdminId = async (req, res) => {
   try {
-    const doctors = await getAllDoctors(req.user.id);
+    const doctors = await getAllDoctorsByAdminId(req.user.id);
     res.status(200).json(doctors);
   } catch (error) {
     console.error(error);
