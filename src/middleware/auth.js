@@ -19,5 +19,4 @@ const authenticateAdmin = async (req, res, next) => {
     return res.status(401).json({ message: "Invalid Token" });
   }
 };
-
 module.exports = { authenticateAdmin };
