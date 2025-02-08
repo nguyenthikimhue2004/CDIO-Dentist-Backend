@@ -15,7 +15,7 @@ const {
   // doctor
   addDoctor,
   getDoctorById,
-  getAllDoctors,
+  getAllDoctorsByAdminId,
   updateDoctor,
   deleteDoctor,
 } = require("../../controllers/Admin.controller");
@@ -49,7 +49,7 @@ router.post("/doctors", authenticateAdmin, addDoctor);
 // get doctor by id
 router.get("/doctor/:id", authenticateAdmin, getDoctorById);
 // get all doctors
-router.get("/doctors", authenticateAdmin, getAllDoctors);
+router.get("/doctors", authenticateAdmin, getAllDoctorsByAdminId);
 // update doctor
 router.put("/doctors/:id", authenticateAdmin, updateDoctor);
 // delete doctor

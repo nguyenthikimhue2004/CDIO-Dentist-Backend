@@ -1,5 +1,14 @@
 const { pool } = require("../config/db.config");
 
+// check if admin exists
+exports.checkEmailExists = async (email) => {
+  const [admin] = await pool.execute("SELECT * FROM Admin WHERE email = ?", [
+    email,
+  ]);
+
+  return admin.length > 0;
+};
+
 // get admin by email
 exports.getAdminByEmail = async (email) => {
   const [admin] = await pool.execute("SELECT * FROM Admin WHERE email = ?", [
