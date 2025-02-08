@@ -10,7 +10,7 @@ exports.addConsultant = async (adminUserId, consultantData) => {
 
   try {
     await pool.execute(
-      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [adminUserId, name, email, phone, location, dob, male]
     );
   } catch (error) {

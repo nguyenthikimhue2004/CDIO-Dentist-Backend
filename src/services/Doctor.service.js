@@ -26,7 +26,7 @@ exports.addDoctor = async (adminID, dortorData) => {
 
   try {
     await pool.execute(
-      "INSERT INTO Doctors(admin_id, name, email, phone, location, dob, experience, male) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Doctors(admin_id, name, email, phone, location, dob, experience, male) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [adminID, name, email, phone, location, dob, experience, male]
     );
   } catch (error) {
