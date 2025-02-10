@@ -25,7 +25,7 @@ app.use(cors());
 
 //
 app.use("/api/v1/admin", AdminRoutes);
-// app.use("/api/v1/user", UserRoutes);
+app.use("/api/v1/user", UserRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
