@@ -35,6 +35,20 @@ exports.addDoctor = async (adminID, dortorData) => {
   }
 };
 
+// get id by name doctor
+exports.getDoctorIdByName = async (name) => {
+  try {
+    const [doctor] = await pool.execute(
+      "SELECT id FROM Doctors WHERE name = ?",
+      [name]
+    );
+    return doctor[0].id;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get id by name");
+  }
+};
+
 // get doctor by id
 exports.getDoctorById = async (id) => {
   const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
