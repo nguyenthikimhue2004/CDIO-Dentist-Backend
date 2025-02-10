@@ -29,10 +29,3 @@ app.use("/api/v1/user", UserRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Setup project Node.js và cấu trúc thư mục
-// Cấu hình kết nối MySQL
-// Tạo các model từ schema database
-// Xây dựng các API endpoints
-// Xử lý authentication/authorization
-// Logic xử lý business
