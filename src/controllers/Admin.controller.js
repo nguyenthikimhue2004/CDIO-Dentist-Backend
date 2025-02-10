@@ -19,77 +19,73 @@ const {
   deleteDoctor,
   getAllDoctorsByAdminId,
 } = require("../services/Doctor.service");
-
-exports.registerAdmin = async (req, res) => {
-  const { email, password } = req.body;
-
-  // check input data
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
-
-  try {
-    // check if email is already registered
-    const emailExists = await checkEmailExists(email);
-    if (emailExists) {
-      return res.status(400).json({ message: "Email already registered" });
+const { validationResult } = require("express-validator");
+const {
+  validateAdminLogin,
+  validateAdminRegistration,
+} = require("../validator/Admin.validator");
+exports.registerAdmin = [
+  validateAdminRegistration, // Use validation middleware
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
 
-    // register admin
-    await registerAdmin(email, password);
+    const { email, password } = req.body;
 
-    // response
-    return res.status(201).json({ message: "Admin registered successfully" });
-  } catch (error) {
-    console.error("Error in registerAdmin:", error);
-    return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
-  }
-};
+    try {
+      const emailExists = await checkEmailExists(email);
+      if (emailExists) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      await registerAdmin(email, password);
+      return res.status(201).json({ message: "Admin registered successfully" });
+    } catch (error) {
+      console.error("Error in registerAdmin:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+];
 
 // login admin
-exports.loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
-
-  // check input data
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
-
-  try {
-    // check if email is registered
-    const [admin] = await getAdminByEmail(email);
-    if (!admin) {
-      return res.status(400).json({ message: "Invalid email or password" });
+exports.loginAdmin = [
+  validateAdminLogin, // Use validation middleware
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
 
-    // compare password
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    const { email, password } = req.body;
+
+    try {
+      const [admin] = await getAdminByEmail(email);
+      if (!admin) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, admin.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      const { accessToken, refreshToken } = generateToken({
+        id: admin.id,
+        email: admin.email,
+        is_admin: true,
+      });
+
+      return res
+        .status(200)
+        .json({ message: "Login successfully", accessToken, refreshToken });
+    } catch (error) {
+      console.error("Error in loginAdmin:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
-
-    // generate token
-    const { accessToken, refreshToken } = generateToken({
-      id: admin.id,
-      email: admin.email,
-      is_admin: true,
-    });
-
-    // response
-    return res.status(200).json({
-      message: "Login successfully",
-      accessToken,
-      refreshToken,
-    });
-  } catch (error) {
-    console.error("Error in loginAdmin:", error);
-    return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
-  }
-};
+  },
+];
 
 // add Consultant
 exports.addConsultant = async (req, res) => {
