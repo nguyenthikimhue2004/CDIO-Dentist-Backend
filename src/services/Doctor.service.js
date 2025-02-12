@@ -62,16 +62,6 @@ exports.getAllDoctors = async () => {
   const [doctors] = await pool.execute("SELECT * FROM Doctors");
   return doctors;
 };
-
-// get all doctors by admin id
-exports.getAllDoctorsByAdminId = async (adminID) => {
-  const [doctors] = await pool.execute(
-    "SELECT * FROM Doctors WHERE admin_id = ?",
-    [adminID]
-  );
-  return doctors;
-};
-
 // update information of doctor
 exports.updateDoctor = async (doctorID, doctorData) => {
   const { name, email, phone, location, dob, experience, male } = doctorData;

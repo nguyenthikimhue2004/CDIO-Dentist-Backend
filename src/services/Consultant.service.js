@@ -35,11 +35,8 @@ exports.getConsultantById = async (id) => {
   return consultant;
 };
 // get all Consultants
-exports.getConsultants = async (adminUserId) => {
-  const [consultants] = await pool.execute(
-    "SELECT * FROM Consultants WHERE admin_user_id = ?",
-    [adminUserId]
-  );
+exports.getAllConsultants = async () => {
+  const [consultants] = await pool.execute("SELECT * FROM Consultants");
   return consultants;
 };
 // update information of Consultant
