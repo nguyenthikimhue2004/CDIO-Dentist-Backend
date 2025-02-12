@@ -18,6 +18,14 @@ exports.addConsultant = async (adminUserId, consultantData) => {
     throw error;
   }
 };
+// get email
+exports.getConsultantByEmail = async (email) => {
+  const [consultant] = await pool.execute(
+    "SELECT * FROM Consultants WHERE email = ?",
+    [email]
+  );
+  return consultant[0];
+};
 // get consultant by id
 exports.getConsultantById = async (id) => {
   const [consultant] = await pool.execute(

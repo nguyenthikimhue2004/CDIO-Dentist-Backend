@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const AdminRoutes = require("./routes/v1/Admin.routes.js");
 const UserRoutes = require("./routes/v1/User.routes.js");
-
+const ConsultantRoutes = require("./routes/v1/Consultant.routes.js");
 // import from internal packages
 const { connect } = require("./config/db.config.js");
 
@@ -26,6 +26,7 @@ app.use(cors());
 //
 app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1/user", UserRoutes);
+app.use("/ap1/v1/consultant", ConsultantRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
