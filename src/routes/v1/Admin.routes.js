@@ -9,13 +9,13 @@ const {
   // consultant
   addConsultant,
   getConsultantById,
-  getConsultants,
+  getAllConsultants,
   updateConsultant,
   deleteConsultant,
   // doctor
   addDoctor,
   getDoctorById,
-  getAllDoctorsByAdminId,
+  getAllDoctors,
   updateDoctor,
   deleteDoctor,
 } = require("../../controllers/Admin.controller");
@@ -36,7 +36,7 @@ router.post("/consultant", authenticateAdmin, addConsultant);
 // get consultant by id
 router.get("/consultant/:id", authenticateAdmin, getConsultantById);
 // get all consultants
-router.get("/consultants", authenticateAdmin, getConsultants);
+router.get("/consultants", authenticateAdmin, getAllConsultants);
 // update consultant
 router.put("/consultants/:id", authenticateAdmin, updateConsultant);
 // delete consultant
@@ -49,7 +49,7 @@ router.post("/doctor", authenticateAdmin, addDoctor);
 // get doctor by id
 router.get("/doctor/:id", authenticateAdmin, getDoctorById);
 // get all doctors
-router.get("/doctors", authenticateAdmin, getAllDoctorsByAdminId);
+router.get("/doctors", authenticateAdmin, getAllDoctors);
 // update doctor
 router.put("/doctors/:id", authenticateAdmin, updateDoctor);
 // delete doctor
