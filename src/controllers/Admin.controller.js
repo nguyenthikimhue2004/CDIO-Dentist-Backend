@@ -7,7 +7,7 @@ const { generateToken } = require("../utils/jwt");
 const bcrypt = require("bcrypt");
 const {
   addConsultant,
-  getConsultants,
+  getAllConsultants,
   updateConsultant,
   deleteConsultant,
   getConsultantById,
@@ -17,7 +17,7 @@ const {
   getDoctorById,
   updateDoctor,
   deleteDoctor,
-  getAllDoctorsByAdminId,
+  getAllDoctors,
 } = require("../services/Doctor.service");
 const { validationResult } = require("express-validator");
 const {
@@ -110,9 +110,9 @@ exports.getConsultantById = async (req, res) => {
 };
 
 // get all Consultants
-exports.getConsultants = async (req, res) => {
+exports.getAllConsultants = async (req, res) => {
   try {
-    const consultants = await getConsultants(req.user.id);
+    const consultants = await getAllConsultants();
     res.status(200).json(consultants);
   } catch (error) {
     console.error(error);
@@ -165,9 +165,9 @@ exports.getDoctorById = async (req, res) => {
 };
 
 // get all Doctors
-exports.getAllDoctorsByAdminId = async (req, res) => {
+exports.getAllDoctors = async (req, res) => {
   try {
-    const doctors = await getAllDoctorsByAdminId(req.user.id);
+    const doctors = await getAllDoctors();
     res.status(200).json(doctors);
   } catch (error) {
     console.error(error);
