@@ -20,6 +20,7 @@ const {
   getAllDoctors,
 } = require("../services/Doctor.service");
 const { validationResult } = require("express-validator");
+const {validateAddConsultant} = require("../validator/Consultant.validator");
 const {
   validateAdminLogin,
   validateAdminRegistration,
@@ -88,15 +89,22 @@ exports.loginAdmin = [
 ];
 
 // add Consultant
-exports.addConsultant = async (req, res) => {
-  try {
-    await addConsultant(req.user.id, req.body);
-    res.status(201).json({ message: "Consultant added successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+exports.addConsultant = [
+  validateAddConsultant, 
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() }); // Return validation errors
+    }
+    try {
+      await addConsultant(req.user.id, req.body);
+      res.status(201).json({ message: "Consultant added successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-};
+]
 
 // get consultant by id
 exports.getConsultantById = async (req, res) => {

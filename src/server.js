@@ -26,7 +26,14 @@ app.use(cors());
 //
 app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1/user", UserRoutes);
-app.use("/ap1/v1/consultant", ConsultantRoutes);
+app.use("/api/v1/consultant", ConsultantRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Setup project Node.js và cấu trúc thư mục
+// Cấu hình kết nối MySQL
+// Tạo các model từ schema database 
+// Xây dựng các API endpoints
+// Xử lý authentication/authorization
+// Logic xử lý business

@@ -1,17 +1,21 @@
 const { pool } = require("../config/db.config");
+const bcrypt = require("bcrypt")
 
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
-  const { name, email, phone, location, dob, male } = consultantData;
+  const { name, email, phone, location, dob, male, password } = consultantData;
 
-  if (!name || !email || !phone || !location || !dob || male === undefined) {
+  if (!name || !email || !phone || !location || !dob || male === undefined || !password) {
     throw new Error("Missing required fields");
   }
 
   try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
     await pool.execute(
-      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [adminUserId, name, email, phone, location, dob, male]
+      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [adminUserId, name, email, phone, location, dob, male, hashedPassword]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -51,3 +55,5 @@ exports.updateConsultant = async (id, consultantData) => {
 exports.deleteConsultant = async (id) => {
   await pool.execute("DELETE FROM Consultants WHERE id = ?", [id]);
 };
+
+
