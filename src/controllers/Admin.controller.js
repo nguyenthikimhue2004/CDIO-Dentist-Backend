@@ -1,10 +1,27 @@
+const bcrypt = require("bcrypt");
+const { generateToken } = require("../utils/jwt");
+const {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  CustomError,
+  UnauthorizedError,
+} = require("../utils/exception");
+const { validationResult } = require("express-validator");
+const { validateAddConsultant } = require("../validator/Consultant.validator");
+// validation
+const {
+  validateAdminLogin,
+  validateAdminRegistration,
+} = require("../validator/Admin.validator");
+// import services
+// admin services
 const {
   getAdminByEmail,
   registerAdmin,
   checkEmailExists,
 } = require("../services/Admin.service");
-const { generateToken } = require("../utils/jwt");
-const bcrypt = require("bcrypt");
+// consultant services
 const {
   addConsultant,
   getAllConsultants,
@@ -12,19 +29,16 @@ const {
   deleteConsultant,
   getConsultantById,
 } = require("../services/Consultant.service");
+// doctor services
 const {
   addDoctor,
   getDoctorById,
   updateDoctor,
   deleteDoctor,
   getAllDoctors,
+  checkDoctorExists,
 } = require("../services/Doctor.service");
-const { validationResult } = require("express-validator");
-const { validateAddConsultant } = require("../validator/Consultant.validator");
-const {
-  validateAdminLogin,
-  validateAdminRegistration,
-} = require("../validator/Admin.validator");
+
 exports.registerAdmin = [
   validateAdminRegistration, // Use validation middleware
   async (req, res) => {
@@ -41,13 +55,16 @@ exports.registerAdmin = [
     try {
       const emailExists = await checkEmailExists(email);
       if (emailExists) {
-        return res.status(400).json({ message: "Email already registered" });
+        throw new BadRequestError("Email already exists");
       }
 
       await registerAdmin(email, password);
       return res.status(201).json({ message: "Admin registered successfully" });
     } catch (error) {
       console.error("Error in registerAdmin:", error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       return res.status(500).json({ message: "Internal server error" });
     }
   },
@@ -70,12 +87,12 @@ exports.loginAdmin = [
     try {
       const [admin] = await getAdminByEmail(email);
       if (!admin) {
-        return res.status(400).json({ message: "Invalid email or password" });
+        throw new NotFoundError("Invalid email or password");
       }
 
       const isPasswordValid = await bcrypt.compare(password, admin.password);
       if (!isPasswordValid) {
-        return res.status(400).json({ message: "Invalid email or password" });
+        throw new UnauthorizedError("Invalid email or password");
       }
 
       const { accessToken, refreshToken } = generateToken({
@@ -89,6 +106,9 @@ exports.loginAdmin = [
         .json({ message: "Login successfully", accessToken, refreshToken });
     } catch (error) {
       console.error("Error in loginAdmin:", error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       return res.status(500).json({ message: "Internal server error" });
     }
   },
@@ -106,7 +126,10 @@ exports.addConsultant = [
       await addConsultant(req.user.id, req.body);
       res.status(201).json({ message: "Consultant added successfully" });
     } catch (error) {
-      console.error(error);
+      console.error("error in add consultant: ", error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       res.status(500).json({ message: "Internal server error" });
     }
   },
@@ -129,7 +152,10 @@ exports.getAllConsultants = async (req, res) => {
     const consultants = await getAllConsultants();
     res.status(200).json(consultants);
   } catch (error) {
-    console.error(error);
+    console.error("error in get all consultant", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -140,7 +166,10 @@ exports.updateConsultant = async (req, res) => {
     await updateConsultant(req.params.id, req.body);
     res.status(200).json({ message: "Consultant updated successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error in update consultant", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -151,7 +180,10 @@ exports.deleteConsultant = async (req, res) => {
     await deleteConsultant(req.params.id);
     res.status(200).json({ message: "Consultant deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error in delete consultant", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -162,7 +194,10 @@ exports.addDoctor = async (req, res) => {
     await addDoctor(req.user.id, req.body);
     res.status(201).json({ message: "Doctor added successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error in add doctor ", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -173,7 +208,10 @@ exports.getDoctorById = async (req, res) => {
     const doctor = await getDoctorById(req.params.id);
     res.status(200).json(doctor);
   } catch (error) {
-    console.error(error);
+    console.error("error in get doctor by id", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -184,7 +222,10 @@ exports.getAllDoctors = async (req, res) => {
     const doctors = await getAllDoctors();
     res.status(200).json(doctors);
   } catch (error) {
-    console.error(error);
+    console.error("error in get all doctors", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -192,10 +233,19 @@ exports.getAllDoctors = async (req, res) => {
 // update information of Doctor
 exports.updateDoctor = async (req, res) => {
   try {
-    await updateDoctor(req.params.id, req.body);
+    const doctorID = req.params.id;
+    const doctorData = req.body;
+    const doctorExists = await checkDoctorExists(doctorID);
+    if (!doctorExists) {
+      throw new NotFoundError("Doctor not found");
+    }
+    await updateDoctor(doctorID, doctorData);
     res.status(200).json({ message: "Doctor updated successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error in update doctor", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -206,7 +256,10 @@ exports.deleteDoctor = async (req, res) => {
     await deleteDoctor(req.params.id);
     res.status(200).json({ message: "Doctor deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error in delete doctor ", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };

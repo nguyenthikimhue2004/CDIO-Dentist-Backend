@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const { CustomError, BadRequestError } = require("../utils/exception");
 const DoctorService = require("../services/Doctor.service");
 const UserService = require("../services/User.service");
 const { validateAppointment } = require("../validator/Appointment.validator");
@@ -9,6 +10,9 @@ exports.getDoctors = async (req, res) => {
     return res.status(200).json({ doctors });
   } catch (error) {
     console.error("Error in getDoctors:", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     return res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
@@ -33,7 +37,7 @@ exports.createAppointment = [
       !doctor_name ||
       !appointment_time
     ) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new BadRequestError("All fields are required");
     }
 
     try {
@@ -53,6 +57,9 @@ exports.createAppointment = [
         .json({ message: "Appointment request created successfully" });
     } catch (error) {
       console.error("Error in createAppointment:", error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       return res
         .status(500)
         .json({ message: "Internal server error", error: error.message });

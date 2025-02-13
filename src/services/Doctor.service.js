@@ -77,13 +77,36 @@ exports.getAllDoctors = async () => {
 exports.updateDoctor = async (doctorID, doctorData) => {
   try {
     const { name, email, phone, location, dob, experience, male } = doctorData;
+
+    // create a object to store the data
+    const updateFields = {};
+    if (name !== undefined) updateFields.name = name;
+    if (email !== undefined) updateFields.email = email.toLowerCase();
+    if (phone !== undefined) updateFields.phone = phone;
+    if (location !== undefined) updateFields.location = location;
+    if (dob !== undefined) updateFields.dob = dob;
+    if (experience !== undefined) updateFields.experience = experience;
+    if (male !== undefined) updateFields.male = male;
+
+    // check if case is empty
+    if (Object.keys(updateFields).length === 0) {
+      throw new Error("No fields to update");
+    }
+
+    // update the data
+    const fieldsToUPdate = Object.keys(updateFields)
+      .map((key) => `${key} = ?`)
+      .join(", ");
+
+    const values = [...Object.values(updateFields), doctorID];
+
     await pool.execute(
-      "UPDATE Doctors SET name = ?, email = ?, phone = ?, location = ?, dob = ?, experience = ?, male = ? WHERE id = ?",
-      [name, email, phone, location, dob, experience, male, doctorID]
+      `UPDATE Doctors SET ${fieldsToUPdate} WHERE id = ?`,
+      values
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    throw new error("Failed to update doctor");
+    throw new Error("Failed to update doctor");
   }
 };
 
@@ -93,6 +116,6 @@ exports.deleteDoctor = async (doctorID) => {
     await pool.execute("DELETE FROM Doctors WHERE id = ?", [doctorID]);
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    throw new error("Failed to delete doctor");
+    throw new Error("Failed to delete doctor");
   }
 };

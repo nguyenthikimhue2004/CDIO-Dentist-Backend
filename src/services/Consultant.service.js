@@ -72,11 +72,31 @@ exports.updateConsultant = async (id, consultantData) => {
   try {
     const { name, email, phone, location, dob, male, password } =
       consultantData;
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const updateFields = {};
+    if (name !== undefined) updateFields.name = name;
+    if (email !== undefined) updateFields.email = email.toLowerCase();
+    if (phone !== undefined) updateFields.phone = phone;
+    if (location !== undefined) updateFields.location = location;
+    if (dob !== undefined) updateFields.dob = dob;
+    if (male !== undefined) updateFields.male = male;
+    if (password !== undefined) {
+      const saltRounds = 10;
+      updateFields.password = await bcrypt.hash(password, saltRounds);
+    }
+
+    // check if case is empty
+    if (Object.keys(updateFields).length === 0) {
+      throw new Error("No fields to update");
+    }
+    // update consultant
+    const fieldsToUpdate = Object.keys(updateFields)
+      .map((key) => `${key} = ?`)
+      .join(", ");
+    const values = [...Object.values(updateFields), id];
+
     await pool.execute(
-      "UPDATE Consultants SET name = ?, email = ?, phone = ?, location = ?, dob = ?, male = ?, password = ? WHERE id = ?",
-      [name, email, phone, location, dob, male, hashedPassword, id]
+      `UPDATE Consultants SET ${fieldsToUpdate} WHERE id = ?`,
+      values
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
