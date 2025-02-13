@@ -20,7 +20,7 @@ const {
   getAllDoctors,
 } = require("../services/Doctor.service");
 const { validationResult } = require("express-validator");
-const {validateAddConsultant} = require("../validator/Consultant.validator");
+const { validateAddConsultant } = require("../validator/Consultant.validator");
 const {
   validateAdminLogin,
   validateAdminRegistration,
@@ -28,12 +28,15 @@ const {
 exports.registerAdmin = [
   validateAdminRegistration, // Use validation middleware
   async (req, res) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req, res);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
 
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    // convert email to lowercase
+    email = email.toLowerCase();
 
     try {
       const emailExists = await checkEmailExists(email);
@@ -59,7 +62,10 @@ exports.loginAdmin = [
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
 
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    // convert email to lowercase
+    email = email.toLowerCase();
 
     try {
       const [admin] = await getAdminByEmail(email);
@@ -90,7 +96,7 @@ exports.loginAdmin = [
 
 // add Consultant
 exports.addConsultant = [
-  validateAddConsultant, 
+  validateAddConsultant,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -103,8 +109,8 @@ exports.addConsultant = [
       console.error(error);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
-]
+  },
+];
 
 // get consultant by id
 exports.getConsultantById = async (req, res) => {

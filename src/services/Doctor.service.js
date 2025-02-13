@@ -10,8 +10,9 @@ exports.checkDoctorExists = async (doctorID) => {
 
 // add doctor
 exports.addDoctor = async (adminID, dortorData) => {
-  const { name, email, phone, location, dob, experience, male } = dortorData;
-
+  let { name, email, phone, location, dob, experience, male } = dortorData;
+  // convert email to lowercase
+  email = email.toLowerCase();
   if (
     !name ||
     !email ||
@@ -51,27 +52,47 @@ exports.getDoctorIdByName = async (name) => {
 
 // get doctor by id
 exports.getDoctorById = async (id) => {
-  const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
-    id,
-  ]);
-  return doctor;
+  try {
+    const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
+      id,
+    ]);
+    return doctor;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get doctor by id");
+  }
 };
 
 // get all doctors
 exports.getAllDoctors = async () => {
-  const [doctors] = await pool.execute("SELECT * FROM Doctors");
-  return doctors;
+  try {
+    const [doctors] = await pool.execute("SELECT * FROM Doctors");
+    return doctors;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get all doctors");
+  }
 };
 // update information of doctor
 exports.updateDoctor = async (doctorID, doctorData) => {
-  const { name, email, phone, location, dob, experience, male } = doctorData;
-  await pool.execute(
-    "UPDATE Doctors SET name = ?, email = ?, phone = ?, location = ?, dob = ?, experience = ?, male = ? = ? WHERE id = ?",
-    [name, email, phone, location, dob, experience, male, doctorID]
-  );
+  try {
+    const { name, email, phone, location, dob, experience, male } = doctorData;
+    await pool.execute(
+      "UPDATE Doctors SET name = ?, email = ?, phone = ?, location = ?, dob = ?, experience = ?, male = ? WHERE id = ?",
+      [name, email, phone, location, dob, experience, male, doctorID]
+    );
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new error("Failed to update doctor");
+  }
 };
 
 // delete doctor
 exports.deleteDoctor = async (doctorID) => {
-  await pool.execute("DELETE FROM Doctors WHERE id = ?", [doctorID]);
+  try {
+    await pool.execute("DELETE FROM Doctors WHERE id = ?", [doctorID]);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new error("Failed to delete doctor");
+  }
 };
