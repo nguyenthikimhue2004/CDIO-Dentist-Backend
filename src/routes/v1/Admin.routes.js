@@ -38,9 +38,9 @@ router.get("/consultant/:id", authenticateAdmin, getConsultantById);
 // get all consultants
 router.get("/consultants", authenticateAdmin, getAllConsultants);
 // update consultant
-router.put("/consultants/:id", authenticateAdmin, updateConsultant);
+router.put("/consultant/:id", authenticateAdmin, updateConsultant);
 // delete consultant
-router.delete("/consultants/:id", authenticateAdmin, deleteConsultant);
+router.delete("/consultant/:id", authenticateAdmin, deleteConsultant);
 
 // Doctor management
 
@@ -51,8 +51,8 @@ router.get("/doctor/:id", authenticateAdmin, getDoctorById);
 // get all doctors
 router.get("/doctors", authenticateAdmin, getAllDoctors);
 // update doctor
-router.put("/doctors/:id", authenticateAdmin, updateDoctor);
+router.put("/doctor/:id", authenticateAdmin, updateDoctor);
 // delete doctor
-router.delete("/doctors/:id", authenticateAdmin, deleteDoctor);
+router.delete("/doctor/:id", authenticateAdmin, deleteDoctor);
 
 module.exports = router;

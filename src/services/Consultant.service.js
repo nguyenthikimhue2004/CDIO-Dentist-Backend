@@ -1,18 +1,27 @@
 const { pool } = require("../config/db.config");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
-  const { name, email, phone, location, dob, male, password } = consultantData;
-
-  if (!name || !email || !phone || !location || !dob || male === undefined || !password) {
+  let { name, email, phone, location, dob, male, password } = consultantData;
+  // convert email to lowercase
+  email = email.toLowerCase();
+  if (
+    !name ||
+    !email ||
+    !phone ||
+    !location ||
+    !dob ||
+    male === undefined ||
+    !password
+  ) {
     throw new Error("Missing required fields");
   }
 
   try {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
+
     await pool.execute(
       "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [adminUserId, name, email, phone, location, dob, male, hashedPassword]
@@ -24,36 +33,57 @@ exports.addConsultant = async (adminUserId, consultantData) => {
 };
 // get email
 exports.getConsultantByEmail = async (email) => {
-  const [consultant] = await pool.execute(
-    "SELECT * FROM Consultants WHERE email = ?",
-    [email]
-  );
-  return consultant[0];
+  try {
+    const [consultant] = await pool.execute(
+      "SELECT * FROM Consultants WHERE email = ?",
+      [email]
+    );
+    return consultant[0];
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new error("Failed to get consultant by email");
+  }
 };
 // get consultant by id
 exports.getConsultantById = async (id) => {
-  const [consultant] = await pool.execute(
-    "SELECT * FROM Consultants WHERE id = ?",
-    [id]
-  );
-  return consultant;
+  try {
+    const [consultant] = await pool.execute(
+      "SELECT * FROM Consultants WHERE id = ?",
+      [id]
+    );
+    return consultant;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get consultant by id");
+  }
 };
 // get all Consultants
 exports.getAllConsultants = async () => {
-  const [consultants] = await pool.execute("SELECT * FROM Consultants");
-  return consultants;
+  try {
+    const [consultants] = await pool.execute("SELECT * FROM Consultants");
+    return consultants;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get all consultants");
+  }
 };
 // update information of Consultant
 exports.updateConsultant = async (id, consultantData) => {
-  const { name, email, phone, location, dob, male } = consultantData;
-  await pool.execute(
-    "UPDATE Consultants SET name = ?, email = ?, phone = ?, location = ?, dob = ? = ?, male = ? WHERE id = ?",
-    [name, email, phone, location, dob, male, id]
-  );
+  try {
+    const { name, email, phone, location, dob, male, password } =
+      consultantData;
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    await pool.execute(
+      "UPDATE Consultants SET name = ?, email = ?, phone = ?, location = ?, dob = ?, male = ?, password = ? WHERE id = ?",
+      [name, email, phone, location, dob, male, hashedPassword, id]
+    );
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to update consultant");
+  }
 };
 // delete Consultant
 exports.deleteConsultant = async (id) => {
   await pool.execute("DELETE FROM Consultants WHERE id = ?", [id]);
 };
-
-
