@@ -1,8 +1,11 @@
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/jwt");
 const { getConsultantByEmail } = require("../services/Consultant.service");
-const {validateLoginConsultant} = require("../validator/Consultant.validator");
+const {
+  validateLoginConsultant,
+} = require("../validator/Consultant.validator");
 const { validationResult } = require("express-validator");
+const { UnauthorizedError, CustomError } = require("../utils/exception");
 // Login Consultant
 exports.loginConsultant = [
   validateLoginConsultant,
@@ -12,43 +15,42 @@ exports.loginConsultant = [
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
     const { email, password } = req.body;
-  
+
     try {
       // check consultant exists
       const consultant = await getConsultantByEmail(email);
       if (!consultant) {
-        return res.status(400).json({ message: "Invalid email or password" });
+        throw new UnauthorizedError("Invalid email or password");
       }
-  
-      // So sánh mật khẩu đã mã hóa
-      const isPasswordValid = await bcrypt.compare(password, consultant.password);
+
+      // compare password
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        consultant.password
+      );
       if (!isPasswordValid) {
-        return res.status(400).json({ message: "Invalid email or password" });
+        throw new UnauthorizedError("Invalid email or password");
       }
-  
-      // Tạo token
+
+      // generate token
       const { accessToken, refreshToken } = generateToken({
         id: consultant.id,
         email: consultant.email,
         is_admin: false, // Consultant không phải là admin
       });
-  
-      // Trả về token và thông tin consultant
+
+      // return token
       res.json({
         message: "Login successfully",
         accessToken,
         refreshToken,
-        consultant: {
-          id: consultant.id,
-          name: consultant.name,
-          email: consultant.email,
-        },
       });
     } catch (error) {
       console.error("Error in loginConsultant:", error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       res.status(500).json({ message: "Internal server error" });
     }
-  }
-]
-
-
+  },
+];

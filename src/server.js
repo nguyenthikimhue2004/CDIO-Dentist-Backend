@@ -7,6 +7,7 @@ const UserRoutes = require("./routes/v1/User.routes.js");
 const ConsultantRoutes = require("./routes/v1/Consultant.routes.js");
 // import from internal packages
 const { connect } = require("./config/db.config.js");
+const errorHandler = require("./middleware/errorHandler.js");
 
 // create an express app
 const app = express();
@@ -27,13 +28,14 @@ app.use(cors());
 app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/consultant", ConsultantRoutes);
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
 // Setup project Node.js và cấu trúc thư mục
 // Cấu hình kết nối MySQL
-// Tạo các model từ schema database 
+// Tạo các model từ schema database
 // Xây dựng các API endpoints
 // Xử lý authentication/authorization
 // Logic xử lý business
