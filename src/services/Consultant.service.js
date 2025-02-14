@@ -32,11 +32,11 @@ exports.addConsultant = async (adminUserId, consultantData) => {
   }
 };
 // get email
-exports.getConsultantByEmail = async (email) => {
+exports.getConsultantByEmail = async (email, id) => {
   try {
     const [consultant] = await pool.execute(
-      "SELECT * FROM Consultants WHERE email = ?",
-      [email]
+      "SELECT * FROM Consultants WHERE email = ? AND id = ?",
+      [email, id]
     );
     return consultant[0];
   } catch (error) {
