@@ -14,11 +14,11 @@ exports.loginConsultant = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
-    const { email, password } = req.body;
+    const { email, id, password } = req.body;
 
     try {
       // check consultant exists
-      const consultant = await getConsultantByEmail(email);
+      const consultant = await getConsultantByEmail(email, id);
       if (!consultant) {
         throw new UnauthorizedError("Invalid email or password");
       }
