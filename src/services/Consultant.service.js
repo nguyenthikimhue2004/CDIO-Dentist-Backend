@@ -1,5 +1,6 @@
 const { pool } = require("../config/db.config");
 const bcrypt = require("bcrypt");
+import moment from "moment/moment";
 import { CustomError, NotFoundError } from "../utils/exception";
 
 // add Consultant
@@ -167,7 +168,8 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
       [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
     );
 
-    // delete appointment request
+    // update schedule of doctor
+    await addAppointmentToDoctorSchedule(doctor_id, preferred_time); // delete appointment request
     await pool.execute("DELETE FROM AppointmentRequests WHERE id = ?", [
       appointmentRequestId,
     ]);
@@ -187,5 +189,32 @@ exports.updateAppointmentStatus = async (id, status) => {
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to update appointment status");
+  }
+};
+
+// add appointment to doctor schedule
+let addAppointmentToDoctorSchedule = async (doctorId, appointmentTime) => {
+  try {
+    const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    // check schedule exists
+    const [existingSchedule] = await pool.execute(
+      "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ?",
+      [doctorId, formattedTime, formattedTime]
+    );
+    if (existingSchedule.length > 0) {
+      throw new Error(
+        "The appointment time conflicts with an existing schedule"
+      );
+    }
+    // add appointment to doctor schedule
+    await pool.execute(
+      "INSERT INTO Schedules (doctor_id, start_time, end_time) VALUES (?, ?, ?)",
+      [doctorId, formattedTime, formattedTime]
+    );
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to add appointment to doctor schedule");
   }
 };
