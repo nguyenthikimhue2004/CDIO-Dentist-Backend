@@ -9,7 +9,7 @@ const {
 // get list of doctors
 router.get("/doctors", getDoctors);
 
-// create appointment
+// create appointment-request
 router.post("/appointment", createAppointment);
 
 module.exports = router;

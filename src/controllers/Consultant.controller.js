@@ -1,6 +1,12 @@
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/jwt");
-const { getConsultantByEmail } = require("../services/Consultant.service");
+const {
+  getConsultantByEmail,
+  getDoctorSchedules,
+  getAppointmentRequests,
+} = require("../services/Consultant.service");
+const consultantService = require("../services/Consultant.service");
+const { CustomError, NotFoundError } = require("../utils/exception");
 const {
   validateLoginConsultant,
 } = require("../validator/Consultant.validator");
@@ -54,3 +60,69 @@ exports.loginConsultant = [
     }
   },
 ];
+
+// get doctor schedule by doctor id
+exports.getDoctorSchedules = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const schedules = await getDoctorSchedules(doctorId);
+    if (!schedules) {
+      throw new NotFoundError("Doctor not found");
+    }
+    res.status(200).json(schedules);
+  } catch (error) {
+    console.error("Error in get doctor schedule by doctor id", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// get appointment requests
+exports.getAppointmentRequests = async (req, res) => {
+  try {
+    const appointmentRequests = await getAppointmentRequests();
+    res.status(200).json({ appointmentRequests });
+  } catch (error) {
+    console.error("error in get appointment request", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// confirm appointment request
+exports.confirmAppointmentRequest = async (req, res) => {
+  const { requestId } = req.params;
+  try {
+    // confirm appointment request
+    await consultantService.confirmAppointmentRequest(requestId);
+    res.status(200).json({ message: "Appointment request confirmed" });
+  } catch (error) {
+    console.error("error in confirm appointment request", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// update appointment status
+exports.updateAppointmentStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // status: "confirmed" | "cancelled"
+  try {
+    await consultantService.updateAppointmentStatus(id, status);
+    res
+      .status(200)
+      .json({ message: "Appointment status updated successfully" });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

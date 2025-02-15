@@ -1,5 +1,6 @@
 const { pool } = require("../config/db.config");
 const bcrypt = require("bcrypt");
+import { CustomError, NotFoundError } from "../utils/exception";
 
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
@@ -105,5 +106,86 @@ exports.updateConsultant = async (id, consultantData) => {
 };
 // delete Consultant
 exports.deleteConsultant = async (id) => {
-  await pool.execute("DELETE FROM Consultants WHERE id = ?", [id]);
+  try {
+    await pool.execute("DELETE FROM Consultants WHERE id = ?", [id]);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to delete consultant");
+  }
+};
+
+// getDoctorSchedules
+exports.getDoctorSchedules = async (doctorId) => {
+  try {
+    const [schedules] = await pool.execute(
+      "SELECT * FROM DoctorSchedules WHERE doctor_id = ?",
+      [doctorId]
+    );
+    return schedules;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get doctor schedules");
+  }
+};
+
+// get appointment requests
+exports.getAppointmentRequests = async () => {
+  try {
+    const [appointmentRequests] = await pool.execute(
+      "SELECT * FROM AppointmentRequests WHERE is_confirmed = false"
+    );
+    return appointmentRequests;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get appointment requests");
+  }
+};
+
+// confirm appointment request
+exports.confirmAppointmentRequest = async (appointmentRequestId) => {
+  try {
+    const [request] = await pool.execute(
+      "SELECT * FROM AppointmentRequests WHERE id = ?",
+      [appointmentRequestId]
+    );
+
+    if (request.length === 0) {
+      throw new NotFoundError("Appointment request not found");
+    }
+
+    const {
+      consultant_id,
+      customer_name,
+      customer_phone,
+      doctor_id,
+      preferred_time,
+    } = request[0];
+
+    // add appointment
+    await pool.execute(
+      "INSERT INTO Appointments (consultant_id, customer_name, customer_phone, doctor_id, appointment_time) VALUES (?, ?, ?, ?, ?)",
+      [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
+    );
+
+    // delete appointment request
+    await pool.execute("DELETE FROM AppointmentRequests WHERE id = ?", [
+      appointmentRequestId,
+    ]);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to confirm appointment request");
+  }
+};
+
+//  update appointment status
+exports.updateAppointmentStatus = async (id, status) => {
+  try {
+    await pool.execute("UPDATE Appointments SET status = ? WHERE id = ?", [
+      status,
+      id,
+    ]);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to update appointment status");
+  }
 };
