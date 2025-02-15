@@ -19,7 +19,7 @@ exports.getDoctors = async (req, res) => {
   }
 };
 
-// create appointment
+// create appointment request
 exports.createAppointment = [
   validateAppointment,
   async (req, res) => {
@@ -45,11 +45,11 @@ exports.createAppointment = [
       const doctor_id = await DoctorService.getDoctorIdByName(doctor_name);
 
       // create appointment request
-      await UserService.createAppointment({
+      await UserService.createAppointmentRequest({
         customer_name,
         customer_phone,
         doctor_id,
-        appointment_time,
+        preferred_time: appointment_time,
       });
 
       return res

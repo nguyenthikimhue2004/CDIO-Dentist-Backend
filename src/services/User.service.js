@@ -1,12 +1,12 @@
 const { pool } = require("../config/db.config");
 const moment = require("moment");
 
-exports.createAppointment = async (appointmentData) => {
-  const { customer_name, customer_phone, doctor_id, appointment_time } =
+exports.createAppointmentRequest = async (appointmentData) => {
+  const { customer_name, customer_phone, doctor_id, preferred_time } =
     appointmentData;
 
   // Validate input data
-  if (!customer_name || !customer_phone || !doctor_id || !appointment_time) {
+  if (!customer_name || !customer_phone || !doctor_id || !preferred_time) {
     throw new Error("All fields are required");
   }
   try {
@@ -17,8 +17,8 @@ exports.createAppointment = async (appointmentData) => {
 
     // Insert the appointment into the database
     await pool.execute(
-      "INSERT INTO Appointments (consultant_id, customer_name, customer_phone, doctor_id, appointment_time) VALUES (?, ?, ?, ?, ?)",
-      [null, customer_name, customer_phone, doctor_id, formattedTime]
+      "INSERT INTO AppointmentRequests (consultant_id, customer_name, customer_phone, doctor_id, appointment_time, is_confirmed) VALUES (?, ?, ?, ?, ?)",
+      [null, customer_name, customer_phone, doctor_id, formattedTime, false]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
