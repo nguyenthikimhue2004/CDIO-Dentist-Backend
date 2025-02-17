@@ -94,14 +94,14 @@ exports.updateDoctor = async (doctorID, doctorData) => {
     }
 
     // update the data
-    const fieldsToUPdate = Object.keys(updateFields)
+    const fieldsToUpdate = Object.keys(updateFields)
       .map((key) => `${key} = ?`)
       .join(", ");
 
     const values = [...Object.values(updateFields), doctorID];
 
     await pool.execute(
-      `UPDATE Doctors SET ${fieldsToUPdate} WHERE id = ?`,
+      `UPDATE Doctors SET ${fieldsToUpdate} WHERE id = ?`,
       values
     );
   } catch (error) {

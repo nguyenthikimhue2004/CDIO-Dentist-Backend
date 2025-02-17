@@ -193,25 +193,29 @@ exports.updateAppointmentStatus = async (id, status) => {
 };
 
 // add appointment to doctor schedule
-let addAppointmentToDoctorSchedule = async (doctorId, appointmentTime) => {
+exports.addAppointmentToDoctorSchedule = async (doctorId, appointmentTime) => {
   try {
     const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
       "YYYY-MM-DD HH:mm:ss"
     );
-    // check schedule exists
+    const formattedEndTime = moment(formattedTime)
+      .add(120, "minutes")
+      .format("YYYY-MM-DD HH:mm:ss");
+
     const [existingSchedule] = await pool.execute(
       "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ?",
-      [doctorId, formattedTime, formattedTime]
+      [doctorId, formattedTime, formattedEndTime]
     );
+
     if (existingSchedule.length > 0) {
       throw new Error(
         "The appointment time conflicts with an existing schedule"
       );
     }
-    // add appointment to doctor schedule
+
     await pool.execute(
-      "INSERT INTO Schedules (doctor_id, start_time, end_time) VALUES (?, ?, ?)",
-      [doctorId, formattedTime, formattedTime]
+      "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time) VALUES (?, ?, ?)",
+      [doctorId, formattedTime, formattedEndTime]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
