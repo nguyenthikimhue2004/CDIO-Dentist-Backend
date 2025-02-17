@@ -1,17 +1,21 @@
 const bcrypt = require("bcrypt");
+const consultantService = require("../services/Consultant.service");
+const {
+  validateLoginConsultant,
+} = require("../validator/Consultant.validator");
+const { validationResult } = require("express-validator");
+const {
+  UnauthorizedError,
+  CustomError,
+  NotFoundError,
+} = require("../utils/exception");
 const { generateToken } = require("../utils/jwt");
 const {
   getConsultantByEmail,
   getDoctorSchedules,
   getAppointmentRequests,
 } = require("../services/Consultant.service");
-const consultantService = require("../services/Consultant.service");
-const { CustomError, NotFoundError } = require("../utils/exception");
-const {
-  validateLoginConsultant,
-} = require("../validator/Consultant.validator");
-const { validationResult } = require("express-validator");
-const { UnauthorizedError, CustomError } = require("../utils/exception");
+
 // Login Consultant
 exports.loginConsultant = [
   validateLoginConsultant,
