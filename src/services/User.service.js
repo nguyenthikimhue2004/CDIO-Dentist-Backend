@@ -11,7 +11,7 @@ exports.createAppointmentRequest = async (appointmentData) => {
   }
   try {
     // Convert appointment_time to MySQL format
-    const formattedTime = moment(appointment_time, "HH:mm, DD/MM/YYYY").format(
+    const formattedTime = moment(preferred_time, "HH:mm, DD/MM/YYYY").format(
       "YYYY-MM-DD HH:mm:ss"
     );
 

@@ -6,6 +6,9 @@ exports.refreshToken = async (req, res) => {
   if (!refreshToken) {
     throw new BadRequestError("Refresh token is required");
   }
+  if (error.name === "TokenExpiredError") {
+    return res.status(401).json({ message: "Refresh Token Expired" });
+  }
   try {
     // authentacation of the refresh token
     const decoded = verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET);
