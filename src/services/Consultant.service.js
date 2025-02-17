@@ -1,8 +1,7 @@
 const { pool } = require("../config/db.config");
 const bcrypt = require("bcrypt");
-import moment from "moment/moment";
-import { CustomError, NotFoundError } from "../utils/exception";
-
+const moment = require("moment/moment");
+const { NotFoundError } = require("../utils/exception");
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
   let { name, email, phone, location, dob, male, password } = consultantData;

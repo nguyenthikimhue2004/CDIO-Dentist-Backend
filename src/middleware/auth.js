@@ -40,6 +40,4 @@ const authenticateConsultant = async (req, res, next) => {
     return res.status(401).json({ message: "Invalid Token" });
   }
 };
-
-module.exports = { authenticateConsultant };
-module.exports = { authenticateAdmin };
+module.exports = { authenticateAdmin, authenticateConsultant };
