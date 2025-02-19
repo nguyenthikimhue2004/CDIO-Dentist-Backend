@@ -17,7 +17,7 @@ exports.createAppointmentRequest = async (appointmentData) => {
 
     // Insert the appointment into the database
     await pool.execute(
-      "INSERT INTO AppointmentRequests (consultant_id, customer_name, customer_phone, doctor_id, appointment_time, is_confirmed) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO AppointmentRequests (consultant_id, customer_name, customer_phone, doctor_id, preferred_time, is_confirmed) VALUES (?, ?, ?, ?, ?, ?)",
       [null, customer_name, customer_phone, doctor_id, formattedTime, false]
     );
   } catch (error) {

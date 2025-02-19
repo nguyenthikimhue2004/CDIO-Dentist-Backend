@@ -28,6 +28,7 @@ const {
   updateConsultant,
   deleteConsultant,
   getConsultantById,
+  checkConsultantEmailExists,
 } = require("../services/Consultant.service");
 // doctor services
 const {
@@ -36,7 +37,7 @@ const {
   updateDoctor,
   deleteDoctor,
   getAllDoctors,
-  checkDoctorExists,
+  checkDoctorEmailExists,
 } = require("../services/Doctor.service");
 
 exports.registerAdmin = [
@@ -123,10 +124,16 @@ exports.addConsultant = [
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
     try {
+      if (await checkConsultantEmailExists(req.body.email)) {
+        throw new BadRequestError("Email is existed");
+      }
       await addConsultant(req.user.id, req.body);
       res.status(201).json({ message: "Consultant added successfully" });
     } catch (error) {
       console.error("error in add consultant: ", error);
+      if (error instanceof BadRequestError) {
+        return res.status(400).json({ message: "Email is existed" });
+      }
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
@@ -181,6 +188,9 @@ exports.deleteConsultant = async (req, res) => {
     res.status(200).json({ message: "Consultant deleted successfully" });
   } catch (error) {
     console.error("error in delete consultant", error);
+    if (error instanceof NotFoundError) {
+      return res.status(404).json({ message: error.message }); // Trả về 404 nếu không tìm thấy
+    }
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
@@ -191,10 +201,16 @@ exports.deleteConsultant = async (req, res) => {
 // add Doctor
 exports.addDoctor = async (req, res) => {
   try {
+    if (await checkDoctorEmailExists(req.body.email)) {
+      throw new BadRequestError("Email is existed");
+    }
     await addDoctor(req.user.id, req.body);
     res.status(201).json({ message: "Doctor added successfully" });
   } catch (error) {
     console.error("error in add doctor ", error);
+    if (error instanceof BadRequestError) {
+      return res.status(400).json({ message: "Email is existed" });
+    }
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
@@ -256,7 +272,10 @@ exports.deleteDoctor = async (req, res) => {
     await deleteDoctor(req.params.id);
     res.status(200).json({ message: "Doctor deleted successfully" });
   } catch (error) {
-    console.error("error in delete doctor ", error);
+    console.error("error in delete doctor", error);
+    if (error instanceof NotFoundError) {
+      return res.status(404).json({ message: error.message }); // Trả về 404 nếu không tìm thấy
+    }
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
