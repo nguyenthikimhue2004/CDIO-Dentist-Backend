@@ -1,5 +1,5 @@
 const { pool } = require("../config/db.config");
-const { BadRequestError } = require("../utils/exception");
+const { BadRequestError, NotFoundError } = require("../utils/exception");
 
 // check if doctor exists
 exports.checkDoctorExists = async (doctorID) => {
