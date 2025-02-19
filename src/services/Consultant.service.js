@@ -1,7 +1,20 @@
 const { pool } = require("../config/db.config");
 const bcrypt = require("bcrypt");
 const moment = require("moment/moment");
-const { NotFoundError } = require("../utils/exception");
+const { NotFoundError, BadRequestError } = require("../utils/exception");
+// check if consultant email exists
+exports.checkConsultantEmailExists = async (email) => {
+  try {
+    const [consultant] = await pool.execute(
+      "SELECT * FROM Consultants WHERE email = ?",
+      [email]
+    );
+    return consultant.length > 0; // Trả về true nếu email đã tồn tại
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to check consultant email existence");
+  }
+};
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
   let { name, email, phone, location, dob, male, password } = consultantData;
@@ -18,11 +31,9 @@ exports.addConsultant = async (adminUserId, consultantData) => {
   ) {
     throw new Error("Missing required fields");
   }
-
   try {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     await pool.execute(
       "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [adminUserId, name, email, phone, location, dob, male, hashedPassword]
@@ -45,6 +56,7 @@ exports.getConsultantByEmail = async (email, id) => {
     throw new error("Failed to get consultant by email");
   }
 };
+
 // get consultant by id
 exports.getConsultantById = async (id) => {
   try {
@@ -107,10 +119,20 @@ exports.updateConsultant = async (id, consultantData) => {
 // delete Consultant
 exports.deleteConsultant = async (id) => {
   try {
+    // Kiểm tra xem consultant có tồn tại không
+    const [consultant] = await pool.execute(
+      "SELECT * FROM Consultants WHERE id = ?",
+      [id]
+    );
+    if (consultant.length === 0) {
+      throw new NotFoundError("Consultant not found");
+    }
+
+    // Thực hiện xóa consultant
     await pool.execute("DELETE FROM Consultants WHERE id = ?", [id]);
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    throw new Error("Failed to delete consultant");
+    throw error; // Ném lỗi để controller xử lý
   }
 };
 

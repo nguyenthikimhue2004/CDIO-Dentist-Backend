@@ -1,4 +1,5 @@
 const { pool } = require("../config/db.config");
+const { BadRequestError } = require("../utils/exception");
 
 // check if doctor exists
 exports.checkDoctorExists = async (doctorID) => {
@@ -8,9 +9,22 @@ exports.checkDoctorExists = async (doctorID) => {
   return doctor.length > 0;
 };
 
-// add doctor
-exports.addDoctor = async (adminID, dortorData) => {
-  let { name, email, phone, location, dob, experience, male } = dortorData;
+// check if doctor email exists
+exports.checkDoctorEmailExists = async (email) => {
+  try {
+    const [doctor] = await pool.execute(
+      "SELECT * FROM Doctors WHERE email = ?",
+      [email]
+    );
+    return doctor.length > 0; // Trả về true nếu email đã tồn tại
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to check doctor email existence");
+  }
+};
+// add Doctor
+exports.addDoctor = async (adminID, doctorData) => {
+  let { name, email, phone, location, dob, experience, male } = doctorData;
   // convert email to lowercase
   email = email.toLowerCase();
   if (
@@ -24,7 +38,6 @@ exports.addDoctor = async (adminID, dortorData) => {
   ) {
     throw new Error("Missing required fields");
   }
-
   try {
     await pool.execute(
       "INSERT INTO Doctors(admin_id, name, email, phone, location, dob, experience, male) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -110,12 +123,21 @@ exports.updateDoctor = async (doctorID, doctorData) => {
   }
 };
 
-// delete doctor
+// delete Doctor
 exports.deleteDoctor = async (doctorID) => {
   try {
+    // Kiểm tra xem doctor có tồn tại không
+    const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
+      doctorID,
+    ]);
+    if (doctor.length === 0) {
+      throw new NotFoundError("Doctor not found");
+    }
+
+    // Thực hiện xóa doctor
     await pool.execute("DELETE FROM Doctors WHERE id = ?", [doctorID]);
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    throw new Error("Failed to delete doctor");
+    throw error; // Ném lỗi để controller xử lý
   }
 };
