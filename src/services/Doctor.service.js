@@ -24,7 +24,8 @@ exports.checkDoctorEmailExists = async (email) => {
 };
 // add Doctor
 exports.addDoctor = async (adminID, doctorData) => {
-  let { name, email, phone, location, dob, experience, male } = doctorData;
+  let { name, email, phone, location, dob, experience, male, profile_image } =
+    doctorData;
   // convert email to lowercase
   email = email.toLowerCase();
   if (
@@ -40,8 +41,18 @@ exports.addDoctor = async (adminID, doctorData) => {
   }
   try {
     await pool.execute(
-      "INSERT INTO Doctors(admin_id, name, email, phone, location, dob, experience, male) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [adminID, name, email, phone, location, dob, experience, male]
+      "INSERT INTO Doctors(admin_id, name, email, phone, location, dob, experience, male, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        adminID,
+        name,
+        email,
+        phone,
+        location,
+        dob,
+        experience,
+        male,
+        profile_image,
+      ]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -69,7 +80,14 @@ exports.getDoctorById = async (id) => {
     const [doctor] = await pool.execute("SELECT * FROM Doctors WHERE id = ?", [
       id,
     ]);
-    return doctor;
+    if (doctor.length === 0) {
+      throw new NotFoundError("Doctor not found");
+    }
+    // Add full image URL for frontend
+    if (doctor[0].profile_image) {
+      doctor[0].profile_image = `/public/img/doctors/${doctor[0].profile_image}`;
+    }
+    return doctor[0];
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to get doctor by id");
@@ -80,6 +98,14 @@ exports.getDoctorById = async (id) => {
 exports.getAllDoctors = async () => {
   try {
     const [doctors] = await pool.execute("SELECT * FROM Doctors");
+
+    // Add full image URL for each doctor
+    doctors.forEach((doctor) => {
+      if (doctor.profile_image) {
+        doctor.profile_image = `/public/img/doctors/${doctor.profile_image}`;
+      }
+    });
+
     return doctors;
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -89,7 +115,16 @@ exports.getAllDoctors = async () => {
 // update information of doctor
 exports.updateDoctor = async (doctorID, doctorData) => {
   try {
-    const { name, email, phone, location, dob, experience, male } = doctorData;
+    const {
+      name,
+      email,
+      phone,
+      location,
+      dob,
+      experience,
+      male,
+      profile_image,
+    } = doctorData;
 
     // create a object to store the data
     const updateFields = {};
@@ -100,6 +135,8 @@ exports.updateDoctor = async (doctorID, doctorData) => {
     if (dob !== undefined) updateFields.dob = dob;
     if (experience !== undefined) updateFields.experience = experience;
     if (male !== undefined) updateFields.male = male;
+
+    if (profile_image !== undefined) updateFields.profile_image = profile_image;
 
     // check if case is empty
     if (Object.keys(updateFields).length === 0) {

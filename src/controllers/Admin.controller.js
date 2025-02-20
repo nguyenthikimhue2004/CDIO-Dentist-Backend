@@ -40,6 +40,8 @@ const {
   checkDoctorEmailExists,
 } = require("../services/Doctor.service");
 
+const path = require("path");
+
 exports.registerAdmin = [
   validateAdminRegistration, // Use validation middleware
   async (req, res) => {
@@ -124,6 +126,10 @@ exports.addConsultant = [
       return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
     try {
+      let profileImage = null;
+      if (req.file) {
+        profileImage = `/img/consultants/${req.file.filename}`;
+      }
       if (await checkConsultantEmailExists(req.body.email)) {
         throw new BadRequestError("Email is existed");
       }
@@ -146,6 +152,12 @@ exports.addConsultant = [
 exports.getConsultantById = async (req, res) => {
   try {
     const consultant = await getConsultantById(req.params.id);
+
+    // Ensure the profile image path is prefixed with "/public"
+    if (consultant.profile_image) {
+      consultant.profile_image = `/public${consultant.profile_image}`;
+    }
+
     res.status(200).json(consultant);
   } catch (error) {
     console.error(error);
@@ -157,12 +169,17 @@ exports.getConsultantById = async (req, res) => {
 exports.getAllConsultants = async (req, res) => {
   try {
     const consultants = await getAllConsultants();
+
+    // Ensure all profile image paths are prefixed with "/public"
+    consultants.forEach((consultant) => {
+      if (consultant.profile_image) {
+        consultant.profile_image = `/public${consultant.profile_image}`;
+      }
+    });
+
     res.status(200).json(consultants);
   } catch (error) {
-    console.error("error in get all consultant", error);
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    console.error("Error in get all consultants", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -170,6 +187,10 @@ exports.getAllConsultants = async (req, res) => {
 // update information of Consultant
 exports.updateConsultant = async (req, res) => {
   try {
+    let profileImage = null;
+    if (req.file) {
+      profileImage = `/img/consultants/${req.file.filename}`;
+    }
     await updateConsultant(req.params.id, req.body);
     res.status(200).json({ message: "Consultant updated successfully" });
   } catch (error) {
@@ -204,6 +225,10 @@ exports.addDoctor = async (req, res) => {
     if (await checkDoctorEmailExists(req.body.email)) {
       throw new BadRequestError("Email is existed");
     }
+    let profileImage = null;
+    if (req.file) {
+      profileImage = `/img/doctors/${req.file.filename}`;
+    }
     await addDoctor(req.user.id, req.body);
     res.status(201).json({ message: "Doctor added successfully" });
   } catch (error) {
@@ -222,12 +247,15 @@ exports.addDoctor = async (req, res) => {
 exports.getDoctorById = async (req, res) => {
   try {
     const doctor = await getDoctorById(req.params.id);
+
+    // Ensure the profile image path is prefixed with "/public"
+    if (doctor.profile_image) {
+      doctor.profile_image = `/public${doctor.profile_image}`;
+    }
+
     res.status(200).json(doctor);
   } catch (error) {
-    console.error("error in get doctor by id", error);
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -236,9 +264,17 @@ exports.getDoctorById = async (req, res) => {
 exports.getAllDoctors = async (req, res) => {
   try {
     const doctors = await getAllDoctors();
+
+    // Ensure all profile image paths are prefixed with "/public"
+    doctors.forEach((doctor) => {
+      if (doctor.profile_image) {
+        doctor.profile_image = `/public${doctor.profile_image}`;
+      }
+    });
+
     res.status(200).json(doctors);
   } catch (error) {
-    console.error("error in get all doctors", error);
+    console.error("Error in get all doctors", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
@@ -254,6 +290,10 @@ exports.updateDoctor = async (req, res) => {
     const doctorExists = await checkDoctorExists(doctorID);
     if (!doctorExists) {
       throw new NotFoundError("Doctor not found");
+    }
+    let profileImage = null;
+    if (req.file) {
+      profileImage = `/img/doctors/${req.file.filename}`;
     }
     await updateDoctor(doctorID, doctorData);
     res.status(200).json({ message: "Doctor updated successfully" });

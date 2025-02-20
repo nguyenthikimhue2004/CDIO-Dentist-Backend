@@ -17,7 +17,8 @@ exports.checkConsultantEmailExists = async (email) => {
 };
 // add Consultant
 exports.addConsultant = async (adminUserId, consultantData) => {
-  let { name, email, phone, location, dob, male, password } = consultantData;
+  let { name, email, phone, location, dob, male, password, profile_image } =
+    consultantData;
   // convert email to lowercase
   email = email.toLowerCase();
   if (
@@ -35,8 +36,18 @@ exports.addConsultant = async (adminUserId, consultantData) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     await pool.execute(
-      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [adminUserId, name, email, phone, location, dob, male, hashedPassword]
+      "INSERT INTO Consultants (admin_user_id, name, email, phone, location, dob, male, password, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        adminUserId,
+        name,
+        email,
+        phone,
+        location,
+        dob,
+        male,
+        hashedPassword,
+        profile_image,
+      ]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -64,7 +75,18 @@ exports.getConsultantById = async (id) => {
       "SELECT * FROM Consultants WHERE id = ?",
       [id]
     );
-    return consultant;
+
+    if (consultant.length === 0) {
+      throw new NotFoundError("Consultant not found");
+    }
+
+    // Add full image URL for frontend
+    const consultantData = consultant[0];
+    if (consultantData.profile_image) {
+      consultantData.profile_image = `/public/img/consultants/${consultantData.profile_image}`;
+    }
+
+    return consultantData;
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to get consultant by id");
@@ -74,6 +96,14 @@ exports.getConsultantById = async (id) => {
 exports.getAllConsultants = async () => {
   try {
     const [consultants] = await pool.execute("SELECT * FROM Consultants");
+
+    // Add full image URL for each consultant
+    consultants.forEach((consultant) => {
+      if (consultant.profile_image) {
+        consultant.profile_image = `/public/img/consultants/${consultant.profile_image}`;
+      }
+    });
+
     return consultants;
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -83,7 +113,7 @@ exports.getAllConsultants = async () => {
 // update information of Consultant
 exports.updateConsultant = async (id, consultantData) => {
   try {
-    const { name, email, phone, location, dob, male, password } =
+    const { name, email, phone, location, dob, male, password, profile_image } =
       consultantData;
     const updateFields = {};
     if (name !== undefined) updateFields.name = name;
@@ -96,7 +126,7 @@ exports.updateConsultant = async (id, consultantData) => {
       const saltRounds = 10;
       updateFields.password = await bcrypt.hash(password, saltRounds);
     }
-
+    if (profile_image !== undefined) updateFields.profile_image = profile_image;
     // check if case is empty
     if (Object.keys(updateFields).length === 0) {
       throw new Error("No fields to update");
