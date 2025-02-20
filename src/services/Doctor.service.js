@@ -60,6 +60,20 @@ exports.addDoctor = async (adminID, doctorData) => {
   }
 };
 
+// Check if doctor exists by name
+exports.checkDoctorExistsByName = async (name) => {
+  try {
+    const [doctor] = await pool.execute(
+      "SELECT id FROM Doctors WHERE name = ?",
+      [name]
+    );
+    return doctor.length > 0; // Return true if the doctor exists
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to check doctor existence");
+  }
+};
+
 // get id by name doctor
 exports.getDoctorIdByName = async (name) => {
   try {
@@ -67,6 +81,9 @@ exports.getDoctorIdByName = async (name) => {
       "SELECT id FROM Doctors WHERE name = ?",
       [name]
     );
+    if (!doctor[0]) {
+      throw new NotFoundError("Doctor not found");
+    }
     return doctor[0].id;
   } catch (error) {
     console.error("Error executing SQL query:", error);

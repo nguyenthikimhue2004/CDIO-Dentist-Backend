@@ -25,26 +25,24 @@ exports.createAppointment = [
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() }); // return validation errors
+      return res.status(400).json({ errors: errors.array() }); // Return validation errors
     }
     const { customer_name, customer_phone, doctor_name, appointment_time } =
       req.body;
 
-    // check input data
-    if (
-      !customer_name ||
-      !customer_phone ||
-      !doctor_name ||
-      !appointment_time
-    ) {
-      throw new BadRequestError("All fields are required");
-    }
-
     try {
-      // get id of doctor by name
+      // Check if doctor exists
+      const doctorExists = await DoctorService.checkDoctorExistsByName(
+        doctor_name
+      );
+      if (!doctorExists) {
+        throw new BadRequestError("Doctor not found");
+      }
+
+      // Get the doctor's ID
       const doctor_id = await DoctorService.getDoctorIdByName(doctor_name);
 
-      // create appointment request
+      // Create the appointment request
       await UserService.createAppointmentRequest({
         customer_name,
         customer_phone,
