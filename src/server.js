@@ -5,6 +5,7 @@ const cors = require("cors");
 const AdminRoutes = require("./routes/v1/Admin.routes.js");
 const UserRoutes = require("./routes/v1/User.routes.js");
 const ConsultantRoutes = require("./routes/v1/Consultant.routes.js");
+const path = require("path");
 // import from internal packages
 const { connect } = require("./config/db.config.js");
 const errorHandler = require("./middleware/errorHandler.js");
@@ -14,6 +15,9 @@ const app = express();
 
 // import port from .env file
 const PORT = process.env.PORT || 5000;
+
+// set static folder
+app.use(express.static(path.join(__dirname, "public")));
 
 //config req.body
 app.use(express.json()); // for json
