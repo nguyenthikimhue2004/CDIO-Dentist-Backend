@@ -10,9 +10,16 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, "../public/img", userType));
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
+    const { name } = req.body; // Lấy tên từ req.body
+    if (!name) {
+      return cb(new Error("Name is required to generate filename"), false);
+    }
+
+    const sanitizedName = name.toLowerCase().replace(/\s+/g, "-"); // Chuẩn hóa tên (ví dụ: "John Doe" -> "john-doe")
+    const ext = path.extname(file.originalname); // Lấy đuôi file (ví dụ: .jpg, .png)
+    const filename = `${sanitizedName}${ext}`; // Tạo tên file: john-doe.jpg
+
+    cb(null, filename);
   },
 });
 

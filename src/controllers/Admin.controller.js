@@ -133,7 +133,10 @@ exports.addConsultant = [
       if (await checkConsultantEmailExists(req.body.email)) {
         throw new BadRequestError("Email is existed");
       }
-      await addConsultant(req.user.id, req.body);
+      await addConsultant(req.user.id, {
+        ...req.body,
+        profile_image: profileImage,
+      });
       res.status(201).json({ message: "Consultant added successfully" });
     } catch (error) {
       console.error("error in add consultant: ", error);
@@ -155,7 +158,9 @@ exports.getConsultantById = async (req, res) => {
 
     // Ensure the profile image path is prefixed with "/public"
     if (consultant.profile_image) {
-      consultant.profile_image = `/public${consultant.profile_image}`;
+      consultant.profile_image = `${req.protocol}://${req.get("host")}${
+        consultant.profile_image
+      }`;
     }
 
     res.status(200).json(consultant);
@@ -173,7 +178,9 @@ exports.getAllConsultants = async (req, res) => {
     // Ensure all profile image paths are prefixed with "/public"
     consultants.forEach((consultant) => {
       if (consultant.profile_image) {
-        consultant.profile_image = `/public${consultant.profile_image}`;
+        consultant.profile_image = `${req.protocol}://${req.get("host")}${
+          consultant.profile_image
+        }`;
       }
     });
 
@@ -191,7 +198,10 @@ exports.updateConsultant = async (req, res) => {
     if (req.file) {
       profileImage = `/img/consultants/${req.file.filename}`;
     }
-    await updateConsultant(req.params.id, req.body);
+    await updateConsultant(req.params.id, {
+      ...req.body,
+      profile_image: profileImage,
+    });
     res.status(200).json({ message: "Consultant updated successfully" });
   } catch (error) {
     console.error("error in update consultant", error);
@@ -229,7 +239,7 @@ exports.addDoctor = async (req, res) => {
     if (req.file) {
       profileImage = `/img/doctors/${req.file.filename}`;
     }
-    await addDoctor(req.user.id, req.body);
+    await addDoctor(req.user.id, { ...req.body, profile_image: profileImage });
     res.status(201).json({ message: "Doctor added successfully" });
   } catch (error) {
     console.error("error in add doctor ", error);
@@ -250,7 +260,9 @@ exports.getDoctorById = async (req, res) => {
 
     // Ensure the profile image path is prefixed with "/public"
     if (doctor.profile_image) {
-      doctor.profile_image = `/public${doctor.profile_image}`;
+      doctor.profile_image = `${req.protocol}://${req.get("host")}${
+        doctor.profile_image
+      }`;
     }
 
     res.status(200).json(doctor);
@@ -264,11 +276,12 @@ exports.getDoctorById = async (req, res) => {
 exports.getAllDoctors = async (req, res) => {
   try {
     const doctors = await getAllDoctors();
-
     // Ensure all profile image paths are prefixed with "/public"
     doctors.forEach((doctor) => {
       if (doctor.profile_image) {
-        doctor.profile_image = `/public${doctor.profile_image}`;
+        doctor.profile_image = `${req.protocol}://${req.get("host")}${
+          doctor.profile_image
+        }`;
       }
     });
 
@@ -285,9 +298,7 @@ exports.getAllDoctors = async (req, res) => {
 // update information of Doctor
 exports.updateDoctor = async (req, res) => {
   try {
-    const doctorID = req.params.id;
-    const doctorData = req.body;
-    const doctorExists = await checkDoctorExists(doctorID);
+    const doctorExists = await checkDoctorEmailExists(req.body.email);
     if (!doctorExists) {
       throw new NotFoundError("Doctor not found");
     }
@@ -295,7 +306,7 @@ exports.updateDoctor = async (req, res) => {
     if (req.file) {
       profileImage = `/img/doctors/${req.file.filename}`;
     }
-    await updateDoctor(doctorID, doctorData);
+    await updateDoctor(doctorID, { ...req.body, profile_image: profileImage });
     res.status(200).json({ message: "Doctor updated successfully" });
   } catch (error) {
     console.error("error in update doctor", error);
