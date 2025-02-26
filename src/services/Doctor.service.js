@@ -100,10 +100,7 @@ exports.getDoctorById = async (id) => {
     if (doctor.length === 0) {
       throw new NotFoundError("Doctor not found");
     }
-    // Add full image URL for frontend
-    if (doctor[0].profile_image) {
-      doctor[0].profile_image = `/public/img/doctors/${doctor[0].profile_image}`;
-    }
+
     return doctor[0];
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -115,13 +112,6 @@ exports.getDoctorById = async (id) => {
 exports.getAllDoctors = async () => {
   try {
     const [doctors] = await pool.execute("SELECT * FROM Doctors");
-
-    // Add full image URL for each doctor
-    doctors.forEach((doctor) => {
-      if (doctor.profile_image) {
-        doctor.profile_image = `/public/img/doctors/${doctor.profile_image}`;
-      }
-    });
 
     return doctors;
   } catch (error) {
