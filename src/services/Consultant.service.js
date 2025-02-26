@@ -56,6 +56,7 @@ exports.addConsultant = async (adminUserId, consultantData) => {
 };
 // get email
 exports.getConsultantByEmail = async (email, id) => {
+  
   try {
     const [consultant] = await pool.execute(
       "SELECT * FROM Consultants WHERE email = ? AND id = ?",
@@ -220,7 +221,9 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
     );
 
     // update schedule of doctor
-    await addAppointmentToDoctorSchedule(doctor_id, preferred_time); // delete appointment request
+    await exports.addAppointmentToDoctorSchedule(doctor_id, preferred_time, customer_name);
+
+    // delete appointment request
     await pool.execute("DELETE FROM AppointmentRequests WHERE id = ?", [
       appointmentRequestId,
     ]);
@@ -230,21 +233,21 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
   }
 };
 
-//  update appointment status
-exports.updateAppointmentStatus = async (id, status) => {
-  try {
-    await pool.execute("UPDATE Appointments SET status = ? WHERE id = ?", [
-      status,
-      id,
-    ]);
-  } catch (error) {
-    console.error("Error executing SQL query:", error);
-    throw new Error("Failed to update appointment status");
-  }
-};
+// //  update appointment status
+// exports.updateAppointmentStatus = async (id, status) => {
+//   try {
+//     await pool.execute("UPDATE Appointments SET status = ? WHERE id = ?", [
+//       status,
+//       id,
+//     ]);
+//   } catch (error) {
+//     console.error("Error executing SQL query:", error);
+//     throw new Error("Failed to update appointment status");
+//   }
+// };
 
 // add appointment to doctor schedule
-exports.addAppointmentToDoctorSchedule = async (doctorId, appointmentTime) => {
+exports.addAppointmentToDoctorSchedule = async (doctorId, appointmentTime, userName) => {
   try {
     const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
       "YYYY-MM-DD HH:mm:ss"
@@ -265,8 +268,8 @@ exports.addAppointmentToDoctorSchedule = async (doctorId, appointmentTime) => {
     }
 
     await pool.execute(
-      "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time) VALUES (?, ?, ?)",
-      [doctorId, formattedTime, formattedEndTime]
+      "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time, user_name) VALUES (?, ?, ?, ?)",
+      [doctorId, formattedTime, formattedEndTime, userName]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);

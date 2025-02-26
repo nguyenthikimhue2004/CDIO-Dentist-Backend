@@ -21,9 +21,9 @@ router.put(
   authenticateConsultant,
   confirmAppointmentRequest
 );
-router.put(
-  "/appointments/:id",
-  authenticateConsultant,
-  updateAppointmentStatus
-);
+// router.put(
+//   "/appointments/:id",
+//   authenticateConsultant,
+//   updateAppointmentStatus
+// );
 module.exports = router;

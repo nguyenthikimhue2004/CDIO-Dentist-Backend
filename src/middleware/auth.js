@@ -28,7 +28,7 @@ const authenticateConsultant = async (req, res, next) => {
 
   try {
     const decoded = verifyToken(token);
-    if (!decoded.is_admin) {
+    if (decoded.is_admin) {
       return res
         .status(403)
         .json({ message: "Forbidden! Consultant access required" });
