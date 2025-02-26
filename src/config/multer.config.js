@@ -4,9 +4,7 @@ const path = require("path");
 // Lưu file vào thư mục cụ thể
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const userType = req.baseUrl.includes("consultant")
-      ? "consultants"
-      : "doctors";
+    const userType = req.url.includes("consultant") ? "consultants" : "doctors";
     cb(null, path.join(__dirname, "../public/img", userType));
   },
   filename: function (req, file, cb) {
