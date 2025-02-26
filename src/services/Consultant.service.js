@@ -56,7 +56,6 @@ exports.addConsultant = async (adminUserId, consultantData) => {
 };
 // get email
 exports.getConsultantByEmail = async (email, id) => {
-  
   try {
     const [consultant] = await pool.execute(
       "SELECT * FROM Consultants WHERE email = ? AND id = ?",
@@ -81,13 +80,7 @@ exports.getConsultantById = async (id) => {
       throw new NotFoundError("Consultant not found");
     }
 
-    // Add full image URL for frontend
-    const consultantData = consultant[0];
-    if (consultantData.profile_image) {
-      consultantData.profile_image = `/public/img/consultants/${consultantData.profile_image}`;
-    }
-
-    return consultantData;
+    return consultant[0]; // Trả về dữ liệu thô, không sửa đổi profile_image
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to get consultant by id");
@@ -97,13 +90,6 @@ exports.getConsultantById = async (id) => {
 exports.getAllConsultants = async () => {
   try {
     const [consultants] = await pool.execute("SELECT * FROM Consultants");
-
-    // Add full image URL for each consultant
-    consultants.forEach((consultant) => {
-      if (consultant.profile_image) {
-        consultant.profile_image = `/public/img/consultants/${consultant.profile_image}`;
-      }
-    });
 
     return consultants;
   } catch (error) {
@@ -221,7 +207,11 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
     );
 
     // update schedule of doctor
-    await exports.addAppointmentToDoctorSchedule(doctor_id, preferred_time, customer_name);
+    await exports.addAppointmentToDoctorSchedule(
+      doctor_id,
+      preferred_time,
+      customer_name
+    );
 
     // delete appointment request
     await pool.execute("DELETE FROM AppointmentRequests WHERE id = ?", [
@@ -247,7 +237,11 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
 // };
 
 // add appointment to doctor schedule
-exports.addAppointmentToDoctorSchedule = async (doctorId, appointmentTime, userName) => {
+exports.addAppointmentToDoctorSchedule = async (
+  doctorId,
+  appointmentTime,
+  userName
+) => {
   try {
     const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
       "YYYY-MM-DD HH:mm:ss"
