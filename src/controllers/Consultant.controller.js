@@ -14,6 +14,7 @@ const {
   getConsultantByEmail,
   getDoctorSchedules,
   getAppointmentRequests,
+  updateScheduleDoctor,
 } = require("../services/Consultant.service");
 
 // Login Consultant
@@ -65,6 +66,16 @@ exports.loginConsultant = [
   },
 ];
 
+// logout consultant
+exports.logoutConsultant = async (req, res) => {
+  try {
+    return res.status(200).json({ message: "Logout successfully" });
+  } catch (error) {
+    console.error("Error in logoutAdmin:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // get doctor schedule by doctor id
 exports.getDoctorSchedules = async (req, res) => {
   try {
@@ -76,6 +87,21 @@ exports.getDoctorSchedules = async (req, res) => {
     res.status(200).json(schedules);
   } catch (error) {
     console.error("Error in get doctor schedule by doctor id", error);
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// update schedule doctor
+exports.updateScheduleDoctor = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    await consultantService.updateScheduleDoctor(doctorId, req.body);
+    res.status(200).json({ message: "Schedule updated successfully" });
+  } catch (error) {
+    console.error("Error in update schedule doctor", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }

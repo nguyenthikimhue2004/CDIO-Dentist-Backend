@@ -54,6 +54,17 @@ exports.addDoctor = async (adminID, doctorData) => {
         profile_image,
       ]
     );
+
+    // get id of doctor
+    const [doctor] = await pool.execute(
+      "SELECT id FROM Doctors WHERE email = ?",
+      [email]
+    );
+
+    // Add a new schedule for the doctor
+    await pool.execute("INSERT INTO DoctorSchedules(doctor_id) VALUES (?)", [
+      doctor[0].id,
+    ]);
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw error;
