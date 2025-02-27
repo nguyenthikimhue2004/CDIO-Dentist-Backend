@@ -117,6 +117,16 @@ exports.loginAdmin = [
   },
 ];
 
+// logout admin
+exports.logoutAdmin = async (req, res) => {
+  try {
+    return res.status(200).json({ message: "Logout successfully" });
+  } catch (error) {
+    console.error("Error in logoutAdmin:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // add Consultant
 exports.addConsultant = [
   validateAddConsultant,

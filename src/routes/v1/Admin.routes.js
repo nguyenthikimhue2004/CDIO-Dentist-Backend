@@ -7,6 +7,7 @@ const {
   // admin
   registerAdmin,
   loginAdmin,
+  logoutAdmin,
   // consultant
   addConsultant,
   getConsultantById,
@@ -26,6 +27,9 @@ router.post("/register", registerAdmin);
 
 // Admin authentication
 router.post("/login", loginAdmin);
+
+// logout admin
+router.post("/logout", logoutAdmin);
 
 // refresh token
 router.post("/refresh-token", refreshToken);

@@ -210,7 +210,8 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
     await exports.addAppointmentToDoctorSchedule(
       doctor_id,
       preferred_time,
-      customer_name
+      customer_name,
+      customer_phone
     );
 
     // delete appointment request
@@ -240,7 +241,8 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
 exports.addAppointmentToDoctorSchedule = async (
   doctorId,
   appointmentTime,
-  userName
+  userName,
+  userPhone
 ) => {
   try {
     const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
@@ -262,11 +264,41 @@ exports.addAppointmentToDoctorSchedule = async (
     }
 
     await pool.execute(
-      "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time, user_name) VALUES (?, ?, ?, ?)",
-      [doctorId, formattedTime, formattedEndTime, userName]
+      "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time, user_name, user_phone) VALUES (?, ?, ?, ?, ?)",
+      [doctorId, formattedTime, formattedEndTime, userName, userPhone]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to add appointment to doctor schedule");
+  }
+};
+
+exports.updateScheduleDoctor = async (doctorId, doctorData) => {
+  const { customer_name, customer_phone, start_time, end_time } = doctorData;
+  try {
+    // Convert appointment_time to MySQL format
+    const startTime = moment(start_time, "HH:mm, DD/MM/YYYY").format(
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    const endTime = moment(end_time, "HH:mm, DD/MM/YYYY").format(
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    const [existingSchedule] = await pool.execute(
+      "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ?",
+      [doctorId, startTime, endTime]
+    );
+
+    if (existingSchedule.length > 0) {
+      throw new Error(
+        "The appointment time conflicts with an existing schedule"
+      );
+    }
+    await pool.execute(
+      "UPDATE DoctorSchedules SET user_name = ?, user_phone = ?, start_time = ?, end_time = ? WHERE doctor_id = ?",
+      [customer_name, customer_phone, startTime, endTime, doctorId]
+    );
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw error;
   }
 };
