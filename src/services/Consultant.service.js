@@ -200,11 +200,11 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
       preferred_time,
     } = request[0];
 
-    // add appointment
-    await pool.execute(
-      "INSERT INTO Appointments (consultant_id, customer_name, customer_phone, doctor_id, appointment_time) VALUES (?, ?, ?, ?, ?)",
-      [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
-    );
+    // // add appointment
+    // await pool.execute(
+    //   "INSERT INTO Appointments (consultant_id, customer_name, customer_phone, doctor_id, appointment_time) VALUES (?, ?, ?, ?, ?)",
+    //   [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
+    // );
 
     // update schedule of doctor
     await exports.addAppointmentToDoctorSchedule(
@@ -241,8 +241,8 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
 exports.addAppointmentToDoctorSchedule = async (
   doctorId,
   appointmentTime,
-  userName,
-  userPhone
+  customer_name,
+  customer_phone
 ) => {
   try {
     const formattedTime = moment(appointmentTime, "YYYY-MM-DD HH:mm:ss").format(
@@ -265,7 +265,7 @@ exports.addAppointmentToDoctorSchedule = async (
 
     await pool.execute(
       "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time, user_name, user_phone) VALUES (?, ?, ?, ?, ?)",
-      [doctorId, formattedTime, formattedEndTime, userName, userPhone]
+      [doctorId, formattedTime, formattedEndTime, customer_name, customer_phone]
     );
   } catch (error) {
     console.error("Error executing SQL query:", error);
