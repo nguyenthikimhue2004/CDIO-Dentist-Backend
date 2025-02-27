@@ -257,6 +257,10 @@ exports.addAppointmentToDoctorSchedule = async (
       [doctorId, formattedTime, formattedEndTime]
     );
 
+    console.log(existingSchedule);
+    console.log(formattedTime, formattedEndTime);
+    
+
     if (existingSchedule.length > 0) {
       throw new Error(
         "The appointment time conflicts with an existing schedule"
@@ -267,6 +271,7 @@ exports.addAppointmentToDoctorSchedule = async (
       "INSERT INTO DoctorSchedules (doctor_id, start_time, end_time, user_name, user_phone) VALUES (?, ?, ?, ?, ?)",
       [doctorId, formattedTime, formattedEndTime, customer_name, customer_phone]
     );
+
   } catch (error) {
     console.error("Error executing SQL query:", error);
     throw new Error("Failed to add appointment to doctor schedule");
