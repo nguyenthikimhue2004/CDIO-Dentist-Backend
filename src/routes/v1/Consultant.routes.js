@@ -12,7 +12,7 @@ const { authenticateConsultant } = require("../../middleware/auth");
 
 router.post("/login", loginConsultant);
 router.post("logout", logoutConsultant);
-router.get("/doctors/:doctorId/schedules", getDoctorSchedules);
+router.get("/doctor-schedule/:doctorId", getDoctorSchedules);
 router.get(
   "/appointment-requests",
   authenticateConsultant,
