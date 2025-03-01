@@ -312,6 +312,7 @@ exports.updateDoctor = async (req, res) => {
     if (!doctorExists) {
       throw new NotFoundError("Doctor not found");
     }
+    const doctorID = req.params.id;
     let profileImage = null;
     if (req.file) {
       profileImage = `/img/doctors/${req.file.filename}`;
