@@ -1,6 +1,19 @@
 const { pool } = require("../config/db.config");
 const moment = require("moment");
 
+exports.getDoctorSchedules = async (doctor_id) => {
+  try {
+    const [schedules] = await pool.execute(
+      "SELECT * FROM DoctorSchedules WHERE doctor_id = ?",
+      [doctor_id]
+    );
+    return schedules;
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    throw new Error("Failed to get doctor schedules");
+  }
+};
+
 exports.createAppointmentRequest = async (appointmentData) => {
   const { customer_name, customer_phone, doctor_id, preferred_time } =
     appointmentData;
