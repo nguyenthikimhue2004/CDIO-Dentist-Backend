@@ -33,6 +33,18 @@ app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/consultant", ConsultantRoutes);
 app.use(errorHandler);
+
+const { sequelize } = require("./models");
+
+async function startApp() {
+  try {
+    await sequelize.sync(); // Tạo lại tất cả bảng
+    console.log("Cơ sở dữ liệu đã được đồng bộ thành công!");
+  } catch (error) {
+    console.error("Lỗi khi đồng bộ cơ sở dữ liệu:", error);
+  }
+}
+startApp();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

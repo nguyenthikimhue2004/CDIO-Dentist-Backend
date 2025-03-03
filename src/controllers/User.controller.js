@@ -1,7 +1,10 @@
 const { validationResult } = require("express-validator");
 const { CustomError, BadRequestError } = require("../utils/exception");
 const DoctorService = require("../services/Doctor.service");
-const { UserService, getDoctorSchedules } = require("../services/User.service");
+const {
+  createAppointmentRequest,
+  getDoctorSchedules,
+} = require("../services/User.service");
 const { validateAppointment } = require("../validator/Appointment.validator");
 // get list of doctors
 exports.getDoctors = async (req, res) => {
@@ -60,7 +63,7 @@ exports.createAppointment = [
       const doctor_id = await DoctorService.getDoctorIdByName(doctor_name);
 
       // Create the appointment request
-      await UserService.createAppointmentRequest({
+      await createAppointmentRequest({
         customer_name,
         customer_phone,
         doctor_id,
