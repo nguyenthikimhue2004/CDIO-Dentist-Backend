@@ -154,7 +154,7 @@ exports.updateDoctor = async (doctorID, doctorData) => {
     if (experience !== undefined) updateFields.experience = experience;
     if (male !== undefined) updateFields.male = male;
 
-    if (profile_image !== undefined) updateFields.profile_image = profile_image;
+    if (profile_image !== null) updateFields.profile_image = profile_image;
 
     // check if case is empty
     if (Object.keys(updateFields).length === 0) {
