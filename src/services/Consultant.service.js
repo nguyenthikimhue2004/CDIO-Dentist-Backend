@@ -113,7 +113,7 @@ exports.updateConsultant = async (id, consultantData) => {
       const saltRounds = 10;
       updateFields.password = await bcrypt.hash(password, saltRounds);
     }
-    if (profile_image !== undefined) updateFields.profile_image = profile_image;
+    if (profile_image !== null) updateFields.profile_image = profile_image;
     // check if case is empty
     if (Object.keys(updateFields).length === 0) {
       throw new Error("No fields to update");
