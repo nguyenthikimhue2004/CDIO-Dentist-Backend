@@ -15,6 +15,7 @@ const {
   getDoctorSchedules,
   getAppointmentRequests,
   updateScheduleDoctor,
+  getConsultantById,
 } = require("../services/Consultant.service");
 
 // Login Consultant
@@ -139,20 +140,33 @@ exports.confirmAppointmentRequest = async (req, res) => {
   }
 };
 
-// update appointment status
-exports.updateAppointmentStatus = async (req, res) => {
+exports.getConsultantById = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // status: "confirmed" | "cancelled"
   try {
-    await consultantService.updateAppointmentStatus(id, status);
-    res
-      .status(200)
-      .json({ message: "Appointment status updated successfully" });
+    const consultant = await getConsultantById(id);
+    res.status(200).json(consultant);
   } catch (error) {
-    console.error(error);
+    console.error("Error in get consultant by id", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+// // update appointment status
+// exports.updateAppointmentStatus = async (req, res) => {
+//   const { id } = req.params;
+//   const { status } = req.body; // status: "confirmed" | "cancelled"
+//   try {
+//     await consultantService.updateAppointmentStatus(id, status);
+//     res
+//       .status(200)
+//       .json({ message: "Appointment status updated successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     if (error instanceof CustomError) {
+//       return res.status(error.statusCode).json({ message: error.message });
+//     }
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };

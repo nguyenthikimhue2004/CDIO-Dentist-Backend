@@ -7,6 +7,7 @@ const {
   confirmAppointmentRequest,
   logoutConsultant,
   updateScheduleDoctor,
+  getConsultantById,
 } = require("../../controllers/Consultant.controller");
 const { authenticateConsultant } = require("../../middleware/auth");
 
@@ -29,6 +30,7 @@ router.put(
   authenticateConsultant,
   updateScheduleDoctor
 );
+router.get("/:id", authenticateConsultant, getConsultantById);
 // router.put(
 //   "/appointments/:id",
 //   authenticateConsultant,
