@@ -181,7 +181,7 @@ exports.getAppointmentRequests = async () => {
 };
 
 // confirm appointment request
-exports.confirmAppointmentRequest = async (appointmentRequestId) => {
+exports.confirmAppointmentRequest = async (appointmentRequestId, status) => {
   try {
     const [request] = await pool.execute(
       "SELECT * FROM AppointmentRequests WHERE id = ?",
@@ -192,27 +192,23 @@ exports.confirmAppointmentRequest = async (appointmentRequestId) => {
       throw new NotFoundError("Appointment request not found");
     }
 
-    const {
-      consultant_id,
-      customer_name,
-      customer_phone,
-      doctor_id,
-      preferred_time,
-    } = request[0];
+    const { customer_name, customer_phone, doctor_id, preferred_time } =
+      request[0];
 
     // // add appointment
     // await pool.execute(
     //   "INSERT INTO Appointments (consultant_id, customer_name, customer_phone, doctor_id, appointment_time) VALUES (?, ?, ?, ?, ?)",
     //   [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
     // );
-
+    if (status === 1) {
+      await exports.addAppointmentToDoctorSchedule(
+        doctor_id,
+        preferred_time,
+        customer_name,
+        customer_phone
+      );
+    }
     // update schedule of doctor
-    await exports.addAppointmentToDoctorSchedule(
-      doctor_id,
-      preferred_time,
-      customer_name,
-      customer_phone
-    );
 
     // delete appointment request
     await pool.execute("DELETE FROM AppointmentRequests WHERE id = ?", [

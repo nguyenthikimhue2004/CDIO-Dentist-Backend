@@ -127,9 +127,10 @@ exports.getAppointmentRequests = async (req, res) => {
 // confirm appointment request
 exports.confirmAppointmentRequest = async (req, res) => {
   const { requestId } = req.params;
+  const { status } = req.body;
   try {
     // confirm appointment request
-    await consultantService.confirmAppointmentRequest(requestId);
+    await consultantService.confirmAppointmentRequest(requestId, status);
     res.status(200).json({ message: "Appointment request confirmed" });
   } catch (error) {
     console.error("error in confirm appointment request", error);
