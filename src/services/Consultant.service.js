@@ -201,7 +201,7 @@ exports.confirmAppointmentRequest = async (appointmentRequestId, status) => {
     //   [consultant_id, customer_name, customer_phone, doctor_id, preferred_time]
     // );
     if (status === 1) {
-      await exports.addAppointmentToDoctorSchedule(
+      await exports.addAppointmentRequestToDoctorSchedule(
         doctor_id,
         preferred_time,
         customer_name,
@@ -234,7 +234,7 @@ exports.confirmAppointmentRequest = async (appointmentRequestId, status) => {
 // };
 
 // add appointment to doctor schedule
-exports.addAppointmentToDoctorSchedule = async (
+exports.addAppointmentRequestToDoctorSchedule = async (
   doctorId,
   appointmentTime,
   customer_name,
@@ -250,7 +250,7 @@ exports.addAppointmentToDoctorSchedule = async (
 
     const [existingSchedule] = await pool.execute(
       "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ?",
-      [doctorId, formattedTime, formattedEndTime]
+      [doctorId, formattedEndTime, formattedTime]
     );
 
     if (existingSchedule.length > 0) {
@@ -268,7 +268,6 @@ exports.addAppointmentToDoctorSchedule = async (
     throw new Error("Failed to add appointment to doctor schedule");
   }
 };
-
 exports.updateScheduleDoctor = async (doctorId, doctorData) => {
   const { customer_name, customer_phone, start_time, end_time } = doctorData;
   try {
@@ -279,9 +278,11 @@ exports.updateScheduleDoctor = async (doctorId, doctorData) => {
     const endTime = moment(end_time, "HH:mm, DD/MM/YYYY").format(
       "YYYY-MM-DD HH:mm:ss"
     );
+
+    // Check for overlapping schedules, excluding the current schedule being updated
     const [existingSchedule] = await pool.execute(
-      "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ?",
-      [doctorId, startTime, endTime]
+      "SELECT * FROM DoctorSchedules WHERE doctor_id = ? AND start_time <= ? AND end_time >= ? AND (start_time != ? OR end_time != ?)",
+      [doctorId, endTime, startTime, startTime, endTime]
     );
 
     if (existingSchedule.length > 0) {
@@ -289,6 +290,7 @@ exports.updateScheduleDoctor = async (doctorId, doctorData) => {
         "The appointment time conflicts with an existing schedule"
       );
     }
+
     await pool.execute(
       "UPDATE DoctorSchedules SET user_name = ?, user_phone = ?, start_time = ?, end_time = ? WHERE doctor_id = ?",
       [customer_name, customer_phone, startTime, endTime, doctorId]
