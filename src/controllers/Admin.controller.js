@@ -308,10 +308,6 @@ exports.getAllDoctors = async (req, res) => {
 // update information of Doctor
 exports.updateDoctor = async (req, res) => {
   try {
-    const doctorExists = await checkDoctorEmailExists(req.body.email);
-    if (!doctorExists) {
-      throw new NotFoundError("Doctor not found");
-    }
     const doctorID = req.params.id;
     let profileImage = null;
     if (req.file) {
