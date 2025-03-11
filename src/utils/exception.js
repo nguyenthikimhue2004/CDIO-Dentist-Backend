@@ -31,7 +31,7 @@ class ForbiddenError extends CustomError {
 
 class InternalServerError extends CustomError {
   constructor(message) {
-    super(message || "Internal Server Error", 500);
+    super(message || "lỗi máy chủ nội bộ", 500);
   }
 }
 

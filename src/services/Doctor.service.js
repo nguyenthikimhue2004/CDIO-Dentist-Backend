@@ -93,7 +93,7 @@ exports.getDoctorIdByName = async (name) => {
       [name]
     );
     if (!doctor[0]) {
-      throw new NotFoundError("Doctor not found");
+      throw new NotFoundError("Không tìm thấy bác sĩ");
     }
     return doctor[0].id;
   } catch (error) {
@@ -109,7 +109,7 @@ exports.getDoctorById = async (id) => {
       id,
     ]);
     if (doctor.length === 0) {
-      throw new NotFoundError("Doctor not found");
+      throw new NotFoundError("Không tìm thấy bác sĩ");
     }
 
     return doctor[0];
@@ -186,7 +186,7 @@ exports.deleteDoctor = async (doctorID) => {
       doctorID,
     ]);
     if (doctor.length === 0) {
-      throw new NotFoundError("Doctor not found");
+      throw new NotFoundError("Không tìm thấy bác sĩ");
     }
 
     // Thực hiện xóa doctor

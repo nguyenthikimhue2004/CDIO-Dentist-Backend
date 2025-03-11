@@ -4,16 +4,16 @@ const { body, validationResult } = require("express-validator");
 exports.validateAdminRegistration = [
   body("email")
     .isEmail()
-    .withMessage("Invalid email format")
+    .withMessage("Định dạng email không hợp lệ")
     .custom((value) => value === value.toLowerCase())
-    .withMessage("Email must be in lowercase"), // Email must be valid
+    .withMessage("Email phải ở chữ thường"), // Email must be valid
   body("password")
     .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long"), // Password must be at least 6 characters
+    .withMessage("Mật khẩu phải dài ít nhất 6 ký tự"), // Password must be at least 6 characters
 ];
 
 // Validation rules for admin login
 exports.validateAdminLogin = [
-  body("email").isEmail().withMessage("Invalid email format"), // Email must be valid
-  body("password").notEmpty().withMessage("Password is required"), // Password must not be empty
+  body("email").isEmail().withMessage("Định dạng email không hợp lệ"), // Email must be valid
+  body("password").notEmpty().withMessage("Mật khẩu là bắt buộc"), // Password must not be empty
 ];

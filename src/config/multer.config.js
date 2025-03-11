@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const { name } = req.body; // Lấy tên từ req.body
     if (!name) {
-      return cb(new Error("Name is required to generate filename"), false);
+      return cb(new Error("Bắt buộc nhập tên to generate filename"), false);
     }
 
     const sanitizedName = name.toLowerCase().replace(/\s+/g, "-"); // Chuẩn hóa tên (ví dụ: "John Doe" -> "john-doe")

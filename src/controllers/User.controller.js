@@ -18,7 +18,7 @@ exports.getDoctors = async (req, res) => {
     }
     return res
       .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      .json({ message: "lỗi máy chủ nội bộ", error: error.message });
   }
 };
 
@@ -35,7 +35,7 @@ exports.getDoctorSchedules = async (req, res) => {
     }
     return res
       .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      .json({ message: "lỗi máy chủ nội bộ", error: error.message });
   }
 };
 
@@ -56,7 +56,7 @@ exports.createAppointment = [
         doctor_name
       );
       if (!doctorExists) {
-        throw new BadRequestError("Doctor not found");
+        throw new BadRequestError("Không tìm thấy bác sĩ");
       }
 
       // Get the doctor's ID
@@ -72,7 +72,7 @@ exports.createAppointment = [
 
       return res
         .status(201)
-        .json({ message: "Appointment request created successfully" });
+        .json({ message: "Yêu cầu cuộc hẹn được tạo thành công" });
     } catch (error) {
       console.error("Error in createAppointment:", error);
       if (error instanceof CustomError) {
@@ -80,7 +80,7 @@ exports.createAppointment = [
       }
       return res
         .status(500)
-        .json({ message: "Internal server error", error: error.message });
+        .json({ message: "lỗi máy chủ nội bộ", error: error.message });
     }
   },
 ];

@@ -58,17 +58,17 @@ exports.registerAdmin = [
     try {
       const emailExists = await checkEmailExists(email);
       if (emailExists) {
-        throw new BadRequestError("Email already exists");
+        throw new BadRequestError("Email này đã được sử dụng");
       }
 
       await registerAdmin(email, password);
-      return res.status(201).json({ message: "Admin registered successfully" });
+      return res.status(201).json({ message: "Đăng nhập thành công" });
     } catch (error) {
       console.error("Error in registerAdmin:", error);
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
     }
   },
 ];
@@ -90,12 +90,12 @@ exports.loginAdmin = [
     try {
       const [admin] = await getAdminByEmail(email);
       if (!admin) {
-        throw new NotFoundError("Invalid email or password");
+        throw new NotFoundError("Email hoặc mật khẩu không đúng");
       }
 
       const isPasswordValid = await bcrypt.compare(password, admin.password);
       if (!isPasswordValid) {
-        throw new UnauthorizedError("Invalid email or password");
+        throw new UnauthorizedError("Email hoặc mật khẩu không đúng");
       }
 
       const { accessToken, refreshToken } = generateToken({
@@ -106,13 +106,13 @@ exports.loginAdmin = [
 
       return res
         .status(200)
-        .json({ message: "Login successfully", accessToken, refreshToken });
+        .json({ message: "Đăng nhập thành công", accessToken, refreshToken });
     } catch (error) {
       console.error("Error in loginAdmin:", error);
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
     }
   },
 ];
@@ -120,10 +120,10 @@ exports.loginAdmin = [
 // logout admin
 exports.logoutAdmin = async (req, res) => {
   try {
-    return res.status(200).json({ message: "Logout successfully" });
+    return res.status(200).json({ message: "Đăng xuất thành công" });
   } catch (error) {
     console.error("Error in logoutAdmin:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -141,22 +141,22 @@ exports.addConsultant = [
         profileImage = `/img/consultants/${req.file.filename}`;
       }
       if (await checkConsultantEmailExists(req.body.email)) {
-        throw new BadRequestError("Email is existed");
+        throw new BadRequestError("Email đã tồn tại");
       }
       await addConsultant(req.user.id, {
         ...req.body,
         profile_image: profileImage,
       });
-      res.status(201).json({ message: "Consultant added successfully" });
+      res.status(201).json({ message: "Thêm nhân viên tư vấn thành công" });
     } catch (error) {
       console.error("error in add consultant: ", error);
       if (error instanceof BadRequestError) {
-        return res.status(400).json({ message: "Email is existed" });
+        return res.status(400).json({ message: "Email đã tồn tại" });
       }
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "lỗi máy chủ nội bộ" });
     }
   },
 ];
@@ -176,7 +176,7 @@ exports.getConsultantById = async (req, res) => {
     res.status(200).json(consultant);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -197,7 +197,7 @@ exports.getAllConsultants = async (req, res) => {
     res.status(200).json(consultants);
   } catch (error) {
     console.error("Error in get all consultants", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -212,13 +212,13 @@ exports.updateConsultant = async (req, res) => {
       ...req.body,
       profile_image: profileImage,
     });
-    res.status(200).json({ message: "Consultant updated successfully" });
+    res.status(200).json({ message: "Cập nhật thông tin thành công" });
   } catch (error) {
     console.error("error in update consultant", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -226,7 +226,7 @@ exports.updateConsultant = async (req, res) => {
 exports.deleteConsultant = async (req, res) => {
   try {
     await deleteConsultant(req.params.id);
-    res.status(200).json({ message: "Consultant deleted successfully" });
+    res.status(200).json({ message: "Xóa thành công" });
   } catch (error) {
     console.error("error in delete consultant", error);
     if (error instanceof NotFoundError) {
@@ -235,7 +235,7 @@ exports.deleteConsultant = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -243,23 +243,23 @@ exports.deleteConsultant = async (req, res) => {
 exports.addDoctor = async (req, res) => {
   try {
     if (await checkDoctorEmailExists(req.body.email)) {
-      throw new BadRequestError("Email is existed");
+      throw new BadRequestError("Email đã tồn tại");
     }
     let profileImage = null;
     if (req.file) {
       profileImage = `/img/doctors/${req.file.filename}`;
     }
     await addDoctor(req.user.id, { ...req.body, profile_image: profileImage });
-    res.status(201).json({ message: "Doctor added successfully" });
+    res.status(201).json({ message: "Thêm bác sĩ thành công" });
   } catch (error) {
     console.error("error in add doctor ", error);
     if (error instanceof BadRequestError) {
-      return res.status(400).json({ message: "Email is existed" });
+      return res.status(400).json({ message: "Email đã tồn tại" });
     }
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -278,7 +278,7 @@ exports.getDoctorById = async (req, res) => {
     res.status(200).json(doctor);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -301,7 +301,7 @@ exports.getAllDoctors = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -314,13 +314,13 @@ exports.updateDoctor = async (req, res) => {
       profileImage = `/img/doctors/${req.file.filename}`;
     }
     await updateDoctor(doctorID, { ...req.body, profile_image: profileImage });
-    res.status(200).json({ message: "Doctor updated successfully" });
+    res.status(200).json({ message: "Cập nhật thông tin thành công" });
   } catch (error) {
     console.error("error in update doctor", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -328,7 +328,7 @@ exports.updateDoctor = async (req, res) => {
 exports.deleteDoctor = async (req, res) => {
   try {
     await deleteDoctor(req.params.id);
-    res.status(200).json({ message: "Doctor deleted successfully" });
+    res.status(200).json({ message: "Xóa thành công" });
   } catch (error) {
     console.error("error in delete doctor", error);
     if (error instanceof NotFoundError) {
@@ -337,6 +337,6 @@ exports.deleteDoctor = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
