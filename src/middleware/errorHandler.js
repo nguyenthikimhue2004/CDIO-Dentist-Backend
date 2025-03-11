@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
   if (err instanceof InternalServerError) {
     return res.status(err.statusCode).json({ message: err.message });
   }
-  res.status(500).json({ message: "Internal server error" });
+  res.status(500).json({ message: "lỗi máy chủ nội bộ" });
 };
 
 module.exports = errorHandler;

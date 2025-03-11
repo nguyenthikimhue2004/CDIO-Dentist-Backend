@@ -32,7 +32,7 @@ exports.loginConsultant = [
       // check consultant exists
       const consultant = await getConsultantByEmail(email, id);
       if (!consultant) {
-        throw new UnauthorizedError("Invalid email or password");
+        throw new UnauthorizedError("Email hoặc mật khẩu không đúng");
       }
 
       // compare password
@@ -41,7 +41,7 @@ exports.loginConsultant = [
         consultant.password
       );
       if (!isPasswordValid) {
-        throw new UnauthorizedError("Invalid email or password");
+        throw new UnauthorizedError("Email hoặc mật khẩu không đúng");
       }
 
       // generate token
@@ -53,7 +53,7 @@ exports.loginConsultant = [
 
       // return token
       res.json({
-        message: "Login successfully",
+        message: "Đăng nhập thành công",
         accessToken,
         refreshToken,
       });
@@ -62,7 +62,7 @@ exports.loginConsultant = [
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "lỗi máy chủ nội bộ" });
     }
   },
 ];
@@ -70,10 +70,10 @@ exports.loginConsultant = [
 // logout consultant
 exports.logoutConsultant = async (req, res) => {
   try {
-    return res.status(200).json({ message: "Logout successfully" });
+    return res.status(200).json({ message: "Đăng xuất thành công" });
   } catch (error) {
     console.error("Error in logoutAdmin:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -83,7 +83,7 @@ exports.getDoctorSchedules = async (req, res) => {
     const { doctorId } = req.params;
     const schedules = await getDoctorSchedules(doctorId);
     if (!schedules) {
-      throw new NotFoundError("Doctor not found");
+      throw new NotFoundError("Không tìm thấy bác sĩ");
     }
     res.status(200).json(schedules);
   } catch (error) {
@@ -91,7 +91,7 @@ exports.getDoctorSchedules = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -100,13 +100,13 @@ exports.updateScheduleDoctor = async (req, res) => {
   const { doctorId } = req.params;
   try {
     await consultantService.updateScheduleDoctor(doctorId, req.body);
-    res.status(200).json({ message: "Schedule updated successfully" });
+    res.status(200).json({ message: "Cập nhật lịch thành công" });
   } catch (error) {
     console.error("Error in update schedule doctor", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -120,7 +120,7 @@ exports.getAppointmentRequests = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -131,13 +131,13 @@ exports.confirmAppointmentRequest = async (req, res) => {
   try {
     // confirm appointment request
     await consultantService.confirmAppointmentRequest(requestId, status);
-    res.status(200).json({ message: "Appointment request confirmed" });
+    res.status(200).json({ message: "Đã xác nhận yêu cầu cuộc hẹn" });
   } catch (error) {
     console.error("error in confirm appointment request", error);
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 
@@ -151,7 +151,7 @@ exports.getConsultantById = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
   }
 };
 // // update appointment status
@@ -168,6 +168,6 @@ exports.getConsultantById = async (req, res) => {
 //     if (error instanceof CustomError) {
 //       return res.status(error.statusCode).json({ message: error.message });
 //     }
-//     return res.status(500).json({ message: "Internal server error" });
+//     return res.status(500).json({ message: "lỗi máy chủ nội bộ" });
 //   }
 // };
